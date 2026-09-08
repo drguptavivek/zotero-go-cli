@@ -20,6 +20,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Epistemic-Technology/zotero/internal/atomicfile"
 	"github.com/spf13/cobra"
 	"go.yaml.in/yaml/v3"
 )
@@ -81,7 +82,7 @@ func atomicJSON(path string, value any) error {
 	if e = f.Close(); e != nil {
 		return e
 	}
-	return os.Rename(name, path)
+	return atomicfile.Replace(name, path)
 }
 func defaultState() string {
 	if p := os.Getenv("ZOTERO_USE_UPDATE_STATE"); p != "" {

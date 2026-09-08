@@ -241,7 +241,11 @@ func TestDownloadLocalFileRedirectAndAtomicFailure(t *testing.T) {
 		t.Fatal(err)
 	}
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fileURL := &url.URL{Scheme: "file", Path: filepath.ToSlash(source)}
+		urlPath := filepath.ToSlash(source)
+		if !strings.HasPrefix(urlPath, "/") {
+			urlPath = "/" + urlPath
+		}
+		fileURL := &url.URL{Scheme: "file", Path: urlPath}
 		w.Header().Set("Location", fileURL.String())
 		w.WriteHeader(http.StatusFound)
 	}))

@@ -11,6 +11,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/Epistemic-Technology/zotero/internal/atomicfile"
 )
 
 const DefaultProfile = "default"
@@ -189,7 +191,7 @@ func (f File) Save(path string) error {
 	if err := tmpFile.Close(); err != nil {
 		return err
 	}
-	return os.Rename(tmp, path)
+	return atomicfile.Replace(tmp, path)
 }
 
 func Resolve(o Overrides, env map[string]string, f File) (Settings, error) {

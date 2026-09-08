@@ -388,7 +388,9 @@ func (a *app) items() *cobra.Command {
 			return e
 		}
 		var v any
-		json.Unmarshal(b, &v)
+		if e = json.Unmarshal(b, &v); e != nil {
+			return e
+		}
 		return a.print(v, f)
 	})
 	ver.Flags().String("output", "json", "json or yaml")
@@ -489,7 +491,9 @@ func (a *app) items() *cobra.Command {
 				return e
 			}
 			var v any
-			json.Unmarshal(b, &v)
+			if e = json.Unmarshal(b, &v); e != nil {
+				return e
+			}
 			format, _ := c.Flags().GetString("output")
 			if format == "" {
 				format = "json"
@@ -876,7 +880,9 @@ func (a *app) collections() *cobra.Command {
 			count, _ = strconv.Atoi(s)
 		} else {
 			var v []any
-			json.Unmarshal(b, &v)
+			if e = json.Unmarshal(b, &v); e != nil {
+				return e
+			}
 			count = len(v)
 		}
 		return a.print(map[string]int{"count": count}, "json")
@@ -890,7 +896,9 @@ func (a *app) collections() *cobra.Command {
 			return e
 		}
 		var v any
-		json.Unmarshal(b, &v)
+		if e = json.Unmarshal(b, &v); e != nil {
+			return e
+		}
 		return a.print(v, f)
 	})
 	ver.Flags().String("output", "json", "output")
@@ -915,7 +923,9 @@ func (a *app) collections() *cobra.Command {
 			return e
 		}
 		var v any
-		json.Unmarshal(r, &v)
+		if e = json.Unmarshal(r, &v); e != nil {
+			return e
+		}
 		format, _ := c.Flags().GetString("output")
 		if format == "" {
 			format = "json"
@@ -1230,7 +1240,9 @@ func (a *app) searches() *cobra.Command {
 			return e
 		}
 		var v any
-		json.Unmarshal(r, &v)
+		if e = json.Unmarshal(r, &v); e != nil {
+			return e
+		}
 		f, _ := c.Flags().GetString("output")
 		if f == "" {
 			f = "json"
@@ -1287,7 +1299,9 @@ func (a *app) fulltext() *cobra.Command {
 			return e
 		}
 		var v any
-		json.Unmarshal(b, &v)
+		if e = json.Unmarshal(b, &v); e != nil {
+			return e
+		}
 		return a.print(v, f)
 	})
 	l.Flags().String("since", "", "library version")
@@ -1330,7 +1344,9 @@ func (a *app) groups() *cobra.Command {
 			return e
 		}
 		var v any
-		json.Unmarshal(b, &v)
+		if e = json.Unmarshal(b, &v); e != nil {
+			return e
+		}
 		f, _ := c.Flags().GetString("output")
 		if f == "" {
 			f = "json"
@@ -1350,7 +1366,9 @@ func (a *app) util() *cobra.Command {
 			return e
 		}
 		var v any
-		json.Unmarshal(b, &v)
+		if e = json.Unmarshal(b, &v); e != nil {
+			return e
+		}
 		f, _ := c.Flags().GetString("output")
 		if f == "" {
 			f = "json"

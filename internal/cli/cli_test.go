@@ -351,6 +351,34 @@ func TestCollectionParentCountAndCreateContract(t *testing.T) {
 	}
 }
 
+func TestSuccessfulMalformedJSONResponsesReturnErrors(t *testing.T) {
+	cases := []struct {
+		name string
+		args []string
+	}{
+		{name: "items versions", args: []string{"items", "versions"}},
+		{name: "collection item count", args: []string{"collections", "item-count", "COLL"}},
+		{name: "collection versions", args: []string{"collections", "versions"}},
+		{name: "collection create", args: []string{"collections", "create", "--name", "Child"}},
+		{name: "search create", args: []string{"search", "create", "--name", "Saved", "--conditions-json", "[]"}},
+		{name: "fulltext list", args: []string{"fulltext", "list-new", "--since", "1"}},
+		{name: "groups list", args: []string{"groups", "list"}},
+		{name: "key info", args: []string{"util", "key-info"}},
+	}
+
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			_, status := runHTTPCommand(t, func(w http.ResponseWriter, r *http.Request) {
+				_, _ = w.Write([]byte("not valid JSON"))
+			}, tc.args...)
+			if status == 0 {
+				t.Fatalf("malformed successful response returned status 0")
+			}
+		})
+	}
+}
+
 func TestConfigureSetupWritesCompatibleProfile(t *testing.T) {
 	path := t.TempDir() + "/config.ini"
 	t.Setenv("ZOT_CONFIG_FILE", path)
