@@ -1,0 +1,117 @@
+name: Build release bundles
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    strategy:
+      matrix:
+        include:
+          - goos: darwin
+            goarch: arm64
+            archive: tar.gz
+          - goos: windows
+            goarch: amd64
+            archive: zip
+          - goos: linux
+            goarch: amd64
+            archive: tar.gz
+          - goos: linux
+            goarch: arm64
+            archive: tar.gz
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: source
+      - uses: actions/checkout@v4
+        with:
+          repository: drguptavivek/zotero-use
+          # Pin the exact skill distributed with this CLI release.
+          ref: fe55ef75550492b4e6770bacf24575e003255871
+          path: bundle/zotero-use
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: source/go.mod
+      - name: Validate pinned skill
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I -S -m unittest discover -s bundle/zotero-use/tests -v
+          python3 -I -S bundle/zotero-use/scripts/check_package.py
+      - name: Build and package
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_REF" == refs/tags/* ]] && \
+             [ "${GITHUB_REF_NAME#v}" != "$(tr -d '[:space:]' < source/VERSION)" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match VERSION $(cat source/VERSION)" >&2
+            exit 1
+          fi
+          target="zotero-go-cli-${{ matrix.goos }}-${{ matrix.goarch }}"
+          suffix=""
+          if [ "${{ matrix.goos }}" = windows ]; then suffix=.exe; fi
+          git -C bundle/zotero-use rev-parse HEAD > bundle/zotero-use/ZOTERO_USE_COMMIT
+          rm -rf bundle/zotero-use/.git
+          mkdir -p "bundle/zotero-use/bin"
+          CGO_ENABLED=0 GOOS="${{ matrix.goos }}" GOARCH="${{ matrix.goarch }}" \
+            go build -C source -trimpath \
+            -ldflags "-s -w" \
+            -o "$GITHUB_WORKSPACE/bundle/zotero-use/bin/zotero-go-cli$suffix" \
+            ./cmd/zotero-go-cli
+          cp source/LICENSE "bundle/LICENSE-zotero-go-cli"
+          cp source/README.md source/VERSION bundle/
+          jq -n \
+            --arg cliVersion "$(tr -d '[:space:]' < source/VERSION)" \
+            --arg cliCommit "$GITHUB_SHA" \
+            --arg skillVersion "$(tr -d '[:space:]' < bundle/zotero-use/VERSION)" \
+            --arg skillCommit "$(cat bundle/zotero-use/ZOTERO_USE_COMMIT)" \
+            --arg goos "${{ matrix.goos }}" \
+            --arg goarch "${{ matrix.goarch }}" \
+            --arg binary "zotero-use/bin/zotero-go-cli$suffix" \
+            '{cliVersion: $cliVersion, cliCommit: $cliCommit,
+              skillVersion: $skillVersion, skillCommit: $skillCommit,
+              goos: $goos, goarch: $goarch, binary: $binary}' \
+            > bundle/BUNDLE-MANIFEST.json
+          test "$(find bundle/zotero-use/bin -maxdepth 1 -type f -name 'zotero-go-cli*' | wc -l | tr -d ' ')" = 1
+          test -f "bundle/zotero-use/bin/zotero-go-cli$suffix"
+          test -f bundle/zotero-use/SKILL.md
+          if [ "${{ matrix.archive }}" = zip ]; then
+            (cd bundle && zip -9 -r "$GITHUB_WORKSPACE/$target.zip" .)
+          else
+            tar -C bundle -czf "$target.tar.gz" .
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zotero-go-cli-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: zotero-go-cli-${{ matrix.goos }}-${{ matrix.goarch }}.*
+      - uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: zotero-go-cli-${{ matrix.goos }}-${{ matrix.goarch }}.*
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: zotero-go-cli-*
+          merge-multiple: true
+          path: dist
+      - name: Create checksums
+        run: (cd dist && sha256sum * > SHA256SUMS)
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/* --generate-notes --verify-tag

@@ -1,181 +1,106 @@
-# zotero
+# zotero-go-cli
 
-A Go client library for the Zotero API that enables comprehensive read and write access to Zotero libraries, collections, items, searches, and tags. This library allows for interaction with both the Zotero Web API v3 and the Zotero desktop application through the local REST API.
+A standalone Go executable for Zotero library operations, reference resolution, PDF attachment checks, ZOTseek MCP access, and Zotero skill utilities. It is built on the MIT-licensed [Epistemic Technology Zotero client](https://github.com/Epistemic-Technology/zotero), with changes for local file retrieval, request handling, and CLI workflows.
 
-## Features
+The compatibility target is all 50 command paths in pyzotero-cli 1.0.0. See [COMPATIBILITY.md](COMPATIBILITY.md) for the command inventory, migration boundaries, and validation scope. The project is under active development; command presence alone is not a parity guarantee.
 
-- ✅ **Complete Read API**: Items, collections, searches, tags, groups, and file downloads
-- ✅ **Complete Write API**: Create, update, and delete operations with batch support (up to 50 items)
-- ✅ **File Operations**: Upload and download attachments with multi-step upload support
-- ✅ **Rate Limiting**: Built-in rate limiting and timeout configuration
-- ✅ **Context Support**: Full context.Context support for all operations
-- ✅ **Flexible Queries**: Pagination, sorting, filtering, and multiple response formats
-- ✅ **Schema Fetching**: Dynamic schema fetching with localization support
-- ✅ **Type Safety**: Item type and creator type constants for IDE autocomplete
-- ✅ **CLI Tool**: Command-line interface with environment variable support
-- ✅ **Comprehensive Testing**: Unit tests with mock servers and integration tests for live/local APIs
+## Build
 
-## Installation
-
-```bash
-go get github.com/Epistemic-Technology/zotero
+```sh
+go build -trimpath -o bin/zotero-go-cli ./cmd/zotero-go-cli
+./bin/zotero-go-cli --help
 ```
 
-## Quick Start
+Go is needed only to build. The resulting executable does not invoke Python, `zot`, `uv`, Node.js, or another package environment. Use the matching binary for macOS, Linux, or Windows and the target processor architecture. Cross-build CI targets Apple-silicon macOS, Windows amd64, and Linux amd64/arm64.
 
-### Basic Usage
+Tagged releases publish installable bundles for Apple-silicon macOS, Windows
+amd64, and Linux amd64/arm64. Each bundle contains the matching executable and
+the complete `zotero-use` skill under `zotero-use/`; copy that directory into
+your agent's skills directory. The binary is at `zotero-use/bin/zotero-go-cli`
+(`.exe` on Windows). Release assets include a `SHA256SUMS` file for integrity
+checking, and GitHub build-provenance attestations can be verified with
+`gh attestation verify <archive> --repo drguptavivek/zotero-go-cli`.
+`BUNDLE-MANIFEST.json` records the CLI and skill versions, source commits,
+target platform, and binary path.
 
-```go
-package main
+The Skills CLI can install the skill repository, but it does not support a
+post-install hook for downloading a native companion executable. Use these
+platform release bundles when the installation must contain both the skill and
+the executable.
 
-import (
-    "context"
-    "fmt"
-    "log"
-    
-    "github.com/Epistemic-Technology/zotero/zotero"
-)
+The release workflow does not currently code-sign or notarize binaries. macOS
+Gatekeeper and Windows SmartScreen may therefore warn on direct downloads; see
+the release notes for the verification status before distributing broadly.
 
-func main() {
-    ctx := context.Background()
-    
-    // Create a client
-    client, err := zotero.NewClient(
-        "12345",                    // Library ID
-        zotero.LibraryTypeUser,     // Library type (user or group)
-        zotero.WithAPIKey("your-api-key"),
-    )
-    if err != nil {
-        log.Fatal(err)
-    }
-    
-    // Fetch items
-    items, err := client.Items(ctx, &zotero.QueryParams{
-        Limit: 10,
-        ItemType: []string{zotero.ItemTypeJournalArticle},
-    })
-    if err != nil {
-        log.Fatal(err)
-    }
-    
-    for _, item := range items {
-        fmt.Printf("%s: %s\n", item.Key, item.Data.Title)
-    }
-}
+Local access requires Zotero Desktop with its local API enabled. Cloud access uses Zotero API credentials and library configuration. Local library operations are read-only. Cloud write commands modify records only when explicitly invoked.
+
+## Reference workflows
+
+```sh
+zotero-go-cli --local --library-id 0 --library-type user items list \
+  --query "FULL ARTICLE TITLE" --qmode titleCreatorYear --output json
+
+zotero-go-cli --local --library-id 0 workflow resolve-references references.txt \
+  --output results.json --pdf verify
+
+zotero-go-cli --local --library-id 0 workflow collection-resolve \
+  "Glaucoma > Burden > India"
+
+zotero-go-cli --local --library-id 0 workflow resolve-references references.txt \
+  --collection-path "Glaucoma > Burden > India" --include-subcollections \
+  --output scoped-results.json
+
+zotero-go-cli --local --library-id 0 workflow pdf-status PARENT_ITEM_KEY
 ```
 
-### Creating Items
+Search workflows strip punctuation before sending title or semantic queries, replacing dashes and other separators with spaces and collapsing whitespace. Original citation titles are preserved. Collection breadcrumbs are parsed before query cleanup.
 
-```go
-// Get a template for the item type
-template, err := client.NewItemTemplate(ctx, zotero.ItemTypeBook)
-if err != nil {
-    log.Fatal(err)
-}
+Reference input can be a numbered Vancouver bibliography or a JSON array with explicit `title`, `doi`, `authors`, `year`, and optional `number` fields. Explicit JSON avoids ambiguity in unusual citation styles. Input order and duplicate entries are preserved. Matches require identifier or bibliographic evidence; semantic relevance alone does not establish identity. PDF verification checks file access and the PDF signature, not the paper's scientific content.
 
-// Create a new book
-item := zotero.Item{
-    Data: zotero.ItemData{
-        ItemType: zotero.ItemTypeBook,
-        Title:    "The Go Programming Language",
-        Creators: []zotero.Creator{
-            {CreatorType: zotero.CreatorTypeAuthor, FirstName: "Alan", LastName: "Donovan"},
-            {CreatorType: zotero.CreatorTypeAuthor, FirstName: "Brian", LastName: "Kernighan"},
-        },
-    },
-}
+## Semantic search within a collection
 
-resp, err := client.CreateItems(ctx, []zotero.Item{item})
-if err != nil {
-    log.Fatal(err)
-}
+```sh
+zotero-go-cli --local --library-id 0 workflow semantic-search \
+  "search for India burden articles in 3 Glaucoma collection"
 
-fmt.Printf("Created %d items\n", len(resp.Success))
+zotero-go-cli --local --library-id 0 workflow semantic-search \
+  "India disease burden" --collection-path "3 Glaucoma"
 ```
 
-### File Operations
+The natural-language form separates the topic from the collection scope. The command resolves the collection breadcrumb, includes descendant collections by default, searches ZOTseek in hybrid mode, and verifies result library identities and item keys against collection membership. Ambiguous collection names return candidate breadcrumbs; use the explicit path to disambiguate.
 
-```go
-// Upload an attachment
-attachment, err := client.UploadAttachment(ctx, parentItemKey, "/path/to/file.pdf", "file.pdf", "application/pdf")
-if err != nil {
-    log.Fatal(err)
-}
+ZOTseek currently returns at most 100 ranked candidates without a collection-filter argument or pagination. Filtering those candidates by collection can miss relevant papers below the global candidate cutoff. Reports disclose this limit; results are discovery aids, not an exhaustive collection review. For a supplied reference list, use `workflow resolve-references` to verify each reference's identity.
 
-// Download an attachment
-fullPath, err := client.Dump(ctx, "ABCD1234", "", "/path/to/downloads")
-if err != nil {
-    log.Fatal(err)
-}
-fmt.Printf("File saved to: %s\n", fullPath)
+## ZOTseek MCP
+
+```sh
+zotero-go-cli zotseek tools
+zotero-go-cli zotseek tools --names-only
+zotero-go-cli zotseek call search --arguments '{"query":"glaucoma screening","mode":"hybrid","max_results":20}'
 ```
 
-## CLI Tool
+Always discover the live schema first: tool names and arguments are server capabilities. The default endpoint is `http://localhost:23119/zotseek/mcp`. `ZOTSEEK_MCP_URL` or `--endpoint` overrides it. The protocol defaults to `2025-03-26`; the stateless `2026-07-28` mode is explicit and does not silently replace a failed handshake.
 
-The project includes a command-line tool for interacting with the Zotero API:
+## Skill helpers
 
-```bash
-# Build the CLI
-make zotero-cli
-
-# Set environment variables (recommended)
-export ZOTERO_API_KEY=your_key
-export ZOTERO_LIBRARY_ID=your_library_id
-export ZOTERO_LIBRARY_TYPE=user
-
-# Use the CLI
-bin/zotero-cli items -limit 10
-bin/zotero-cli items -itemtype journalArticle -limit 10
-bin/zotero-cli collections
-bin/zotero-cli download -item ABC123 -path ./downloads
+```sh
+zotero-go-cli docx validate chapter.docx --minimum-fields 1 --json
+zotero-go-cli docx validate edited.docx --baseline original.docx --preserve-baseline-citations --json
+zotero-go-cli --local --library-id 0 doctor --strict --require-zotseek --json
+zotero-go-cli skill check-package --root /path/to/zotero-use --json
+zotero-go-cli skill check-updates --root /path/to/zotero-use --no-write --json
 ```
 
-## Development
+DOCX validation is read-only. Update checks report availability and never install an update. Skill-package checks can compare a mirror with `--compare-root`.
 
-### Testing
+## Validation
 
-```bash
-# Run unit tests (fast, no credentials required)
-make test-unit
-
-# Run integration tests (requires .env with API credentials)
-make test-integration
-
-# Run all tests
-make test-all
+```sh
+go test ./...
+go test -race ./...
+go vet ./...
 ```
 
-See [tests/README.md](tests/README.md) for detailed testing documentation.
+These commands run offline tests only. The inherited live read tests require `-tags integration`; write tests require `-tags integration_write` and a disposable library. Do not run write integration tests against a personal research library.
 
-### Building
-
-```bash
-make build              # Build all binaries
-make zotero-cli         # Build only the CLI tool
-make help               # Show all available targets
-```
-
-## Documentation
-
-For comprehensive documentation including:
-- Detailed API usage examples
-- Write operations (create, update, delete)
-- Batch operations
-- Query parameters and filtering
-- Schema fetching
-- Testing strategies
-
-See [CLAUDE.md](CLAUDE.md) for complete project documentation.
-
-## Credit
-
-This library is heavily inspired by the [Pyzotero](https://github.com/urschrei/pyzotero) library and can be largely considered a port of it to the Go programming language. Pyzotero uses the [Blue Oak Model License](https://github.com/urschrei/pyzotero/blob/main/LICENSE.md).
-
-## References
-
-- [Zotero Web API v3 Documentation](https://www.zotero.org/support/dev/web_api/v3/start)
-- [Pyzotero documentation](https://pyzotero.readthedocs.io/en/latest/) - Python implementation serving as a reference for this library
-
-## License
-
-[Add your license information here]
+Private citation fixtures and PDFs remain outside the repository. Preserve the original upstream license and attribution when redistributing.

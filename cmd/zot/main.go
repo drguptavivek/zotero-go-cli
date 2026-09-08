@@ -1,0 +1,15 @@
+package main
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/Epistemic-Technology/zotero/internal/cli"
+)
+
+func main() {
+	if err := cli.NewCommand().Execute(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}

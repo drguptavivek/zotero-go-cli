@@ -1,0 +1,4095 @@
+[
+  {
+    "path": [],
+    "help": "A CLI for interacting with Zotero libraries via Pyzotero.",
+    "params": [
+      {
+        "name": "version",
+        "opts": [
+          "--version"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "BOOL"
+      },
+      {
+        "name": "profile",
+        "opts": [
+          "--profile"
+        ],
+        "required": false,
+        "default": "None",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "api_key",
+        "opts": [
+          "--api-key"
+        ],
+        "required": false,
+        "default": "None",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "library_id",
+        "opts": [
+          "--library-id"
+        ],
+        "required": false,
+        "default": "None",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "library_type",
+        "opts": [
+          "--library-type"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['user', 'group'])"
+      },
+      {
+        "name": "local",
+        "opts": [
+          "--local"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "BOOL"
+      },
+      {
+        "name": "verbose",
+        "opts": [
+          "--verbose",
+          "-v"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "BOOL"
+      },
+      {
+        "name": "debug",
+        "opts": [
+          "--debug"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "BOOL"
+      },
+      {
+        "name": "no_interaction",
+        "opts": [
+          "--no-interaction"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "BOOL"
+      }
+    ]
+  },
+  {
+    "path": [
+      "items"
+    ],
+    "help": "Manage Zotero items.",
+    "params": []
+  },
+  {
+    "path": [
+      "items",
+      "list"
+    ],
+    "help": "List items in the Zotero library.",
+    "params": [
+      {
+        "name": "top",
+        "opts": [
+          "--top"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "BOOL"
+      },
+      {
+        "name": "publications",
+        "opts": [
+          "--publications"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "BOOL"
+      },
+      {
+        "name": "trash",
+        "opts": [
+          "--trash"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "BOOL"
+      },
+      {
+        "name": "deleted",
+        "opts": [
+          "--deleted"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "BOOL"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys', 'bibtex', 'csljson', 'bib'])"
+      },
+      {
+        "name": "start",
+        "opts": [
+          "--start"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "limit",
+        "opts": [
+          "--limit"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "direction",
+        "opts": [
+          "--direction"
+        ],
+        "required": false,
+        "default": "asc",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['asc', 'desc'])"
+      },
+      {
+        "name": "sort",
+        "opts": [
+          "--sort"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['dateAdded', 'dateModified', 'title', 'creator', 'type', 'date', 'publisher', 'publicationTitle', 'journalAbbreviation', 'language', 'accessDate', 'libraryCatalog', 'callNumber', 'rights'])"
+      },
+      {
+        "name": "filter_item_type",
+        "opts": [
+          "--filter-item-type"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_tags",
+        "opts": [
+          "--filter-tag"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": true,
+        "type": "STRING"
+      },
+      {
+        "name": "qmode",
+        "opts": [
+          "--qmode"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['titleCreatorYear', 'everything'])"
+      },
+      {
+        "name": "query",
+        "opts": [
+          "--query",
+          "-q"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "since",
+        "opts": [
+          "--since"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      }
+    ]
+  },
+  {
+    "path": [
+      "items",
+      "get"
+    ],
+    "help": "Retrieve one or more specific Zotero items by their key or ID.",
+    "params": [
+      {
+        "name": "item_key_or_id",
+        "opts": [
+          "item_key_or_id"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": -1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "since",
+        "opts": [
+          "--since"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_item_type",
+        "opts": [
+          "--filter-item-type"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_tags",
+        "opts": [
+          "--filter-tag"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": true,
+        "type": "STRING"
+      },
+      {
+        "name": "qmode",
+        "opts": [
+          "--qmode"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['titleCreatorYear', 'everything'])"
+      },
+      {
+        "name": "query",
+        "opts": [
+          "--query",
+          "-q"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "direction",
+        "opts": [
+          "--direction"
+        ],
+        "required": false,
+        "default": "asc",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['asc', 'desc'])"
+      },
+      {
+        "name": "sort",
+        "opts": [
+          "--sort"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['dateAdded', 'dateModified', 'title', 'creator', 'type', 'date', 'publisher', 'publicationTitle', 'journalAbbreviation', 'language', 'accessDate', 'libraryCatalog', 'callNumber', 'rights', 'addedBy', 'numItems', 'tags'])"
+      },
+      {
+        "name": "start",
+        "opts": [
+          "--start"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "limit",
+        "opts": [
+          "--limit"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys', 'bibtex', 'csljson', 'bib'])"
+      },
+      {
+        "name": "style_for_bib",
+        "opts": [
+          "--style"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "linkwrap_for_bib",
+        "opts": [
+          "--linkwrap"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "BOOL"
+      }
+    ]
+  },
+  {
+    "path": [
+      "items",
+      "children"
+    ],
+    "help": "Get child items of a specific Zotero item.",
+    "params": [
+      {
+        "name": "parent_item_key_or_id",
+        "opts": [
+          "parent_item_key_or_id"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "since",
+        "opts": [
+          "--since"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_item_type",
+        "opts": [
+          "--filter-item-type"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_tags",
+        "opts": [
+          "--filter-tag"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": true,
+        "type": "STRING"
+      },
+      {
+        "name": "qmode",
+        "opts": [
+          "--qmode"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['titleCreatorYear', 'everything'])"
+      },
+      {
+        "name": "query",
+        "opts": [
+          "--query",
+          "-q"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "direction",
+        "opts": [
+          "--direction"
+        ],
+        "required": false,
+        "default": "asc",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['asc', 'desc'])"
+      },
+      {
+        "name": "sort",
+        "opts": [
+          "--sort"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['dateAdded', 'dateModified', 'title', 'creator', 'type', 'date', 'publisher', 'publicationTitle', 'journalAbbreviation', 'language', 'accessDate', 'libraryCatalog', 'callNumber', 'rights', 'addedBy', 'numItems', 'tags'])"
+      },
+      {
+        "name": "start",
+        "opts": [
+          "--start"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "limit",
+        "opts": [
+          "--limit"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys', 'bibtex', 'csljson', 'bib'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "items",
+      "count"
+    ],
+    "help": "Get the total count of items in the library.",
+    "params": []
+  },
+  {
+    "path": [
+      "items",
+      "versions"
+    ],
+    "help": "Get item version information.",
+    "params": [
+      {
+        "name": "since_version",
+        "opts": [
+          "--since"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "output_format",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "items",
+      "create"
+    ],
+    "help": "Create new Zotero item(s).",
+    "params": [
+      {
+        "name": "from_json_input",
+        "opts": [
+          "--from-json"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "template_type",
+        "opts": [
+          "--template"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "fields",
+        "opts": [
+          "--field"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 2,
+        "multiple": true,
+        "type": "<click.types.Tuple object at 0x10b6130e0>"
+      },
+      {
+        "name": "parent_item_id",
+        "opts": [
+          "--parent-id"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "since",
+        "opts": [
+          "--since"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_item_type",
+        "opts": [
+          "--filter-item-type"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_tags",
+        "opts": [
+          "--filter-tag"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": true,
+        "type": "STRING"
+      },
+      {
+        "name": "qmode",
+        "opts": [
+          "--qmode"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['titleCreatorYear', 'everything'])"
+      },
+      {
+        "name": "query",
+        "opts": [
+          "--query",
+          "-q"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "direction",
+        "opts": [
+          "--direction"
+        ],
+        "required": false,
+        "default": "asc",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['asc', 'desc'])"
+      },
+      {
+        "name": "sort",
+        "opts": [
+          "--sort"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['dateAdded', 'dateModified', 'title', 'creator', 'type', 'date', 'publisher', 'publicationTitle', 'journalAbbreviation', 'language', 'accessDate', 'libraryCatalog', 'callNumber', 'rights', 'addedBy', 'numItems', 'tags'])"
+      },
+      {
+        "name": "start",
+        "opts": [
+          "--start"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "limit",
+        "opts": [
+          "--limit"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys', 'bibtex', 'csljson', 'bib'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "items",
+      "update"
+    ],
+    "help": "Update an existing Zotero item.",
+    "params": [
+      {
+        "name": "item_key_or_id",
+        "opts": [
+          "item_key_or_id"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "from_json_input",
+        "opts": [
+          "--from-json"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "fields",
+        "opts": [
+          "--field"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 2,
+        "multiple": true,
+        "type": "<click.types.Tuple object at 0x10b69a850>"
+      },
+      {
+        "name": "last_modified_option",
+        "opts": [
+          "--last-modified"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "since",
+        "opts": [
+          "--since"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_item_type",
+        "opts": [
+          "--filter-item-type"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_tags",
+        "opts": [
+          "--filter-tag"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": true,
+        "type": "STRING"
+      },
+      {
+        "name": "qmode",
+        "opts": [
+          "--qmode"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['titleCreatorYear', 'everything'])"
+      },
+      {
+        "name": "query",
+        "opts": [
+          "--query",
+          "-q"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "direction",
+        "opts": [
+          "--direction"
+        ],
+        "required": false,
+        "default": "asc",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['asc', 'desc'])"
+      },
+      {
+        "name": "sort",
+        "opts": [
+          "--sort"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['dateAdded', 'dateModified', 'title', 'creator', 'type', 'date', 'publisher', 'publicationTitle', 'journalAbbreviation', 'language', 'accessDate', 'libraryCatalog', 'callNumber', 'rights', 'addedBy', 'numItems', 'tags'])"
+      },
+      {
+        "name": "start",
+        "opts": [
+          "--start"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "limit",
+        "opts": [
+          "--limit"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys', 'bibtex', 'csljson', 'bib'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "items",
+      "delete"
+    ],
+    "help": "Delete one or more Zotero items.",
+    "params": [
+      {
+        "name": "item_key_or_id",
+        "opts": [
+          "item_key_or_id"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": -1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "last_modified_option",
+        "opts": [
+          "--last-modified"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "force",
+        "opts": [
+          "--force"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "BOOL"
+      },
+      {
+        "name": "since",
+        "opts": [
+          "--since"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_item_type",
+        "opts": [
+          "--filter-item-type"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_tags",
+        "opts": [
+          "--filter-tag"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": true,
+        "type": "STRING"
+      },
+      {
+        "name": "qmode",
+        "opts": [
+          "--qmode"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['titleCreatorYear', 'everything'])"
+      },
+      {
+        "name": "query",
+        "opts": [
+          "--query",
+          "-q"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "direction",
+        "opts": [
+          "--direction"
+        ],
+        "required": false,
+        "default": "asc",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['asc', 'desc'])"
+      },
+      {
+        "name": "sort",
+        "opts": [
+          "--sort"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['dateAdded', 'dateModified', 'title', 'creator', 'type', 'date', 'publisher', 'publicationTitle', 'journalAbbreviation', 'language', 'accessDate', 'libraryCatalog', 'callNumber', 'rights', 'addedBy', 'numItems', 'tags'])"
+      },
+      {
+        "name": "start",
+        "opts": [
+          "--start"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "limit",
+        "opts": [
+          "--limit"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys', 'bibtex', 'csljson', 'bib'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "items",
+      "add-tags"
+    ],
+    "help": "Add one or more tags to a Zotero item.",
+    "params": [
+      {
+        "name": "item_key_or_id",
+        "opts": [
+          "item_key_or_id"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "tag_names",
+        "opts": [
+          "tag_names"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": -1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "since",
+        "opts": [
+          "--since"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_item_type",
+        "opts": [
+          "--filter-item-type"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_tags",
+        "opts": [
+          "--filter-tag"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": true,
+        "type": "STRING"
+      },
+      {
+        "name": "qmode",
+        "opts": [
+          "--qmode"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['titleCreatorYear', 'everything'])"
+      },
+      {
+        "name": "query",
+        "opts": [
+          "--query",
+          "-q"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "direction",
+        "opts": [
+          "--direction"
+        ],
+        "required": false,
+        "default": "asc",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['asc', 'desc'])"
+      },
+      {
+        "name": "sort",
+        "opts": [
+          "--sort"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['dateAdded', 'dateModified', 'title', 'creator', 'type', 'date', 'publisher', 'publicationTitle', 'journalAbbreviation', 'language', 'accessDate', 'libraryCatalog', 'callNumber', 'rights', 'addedBy', 'numItems', 'tags'])"
+      },
+      {
+        "name": "start",
+        "opts": [
+          "--start"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "limit",
+        "opts": [
+          "--limit"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys', 'bibtex', 'csljson', 'bib'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "items",
+      "add-doi"
+    ],
+    "help": "Create Zotero item(s) from DOI metadata.",
+    "params": [
+      {
+        "name": "dois",
+        "opts": [
+          "dois"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": -1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "collection_key_or_id",
+        "opts": [
+          "--collection"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "check_duplicate",
+        "opts": [
+          "--check-duplicate"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "BOOL"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "items",
+      "bib"
+    ],
+    "help": "Get bibliography entries for one or more Zotero items (output is HTML).",
+    "params": [
+      {
+        "name": "style",
+        "opts": [
+          "--style"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "linkwrap",
+        "opts": [
+          "--linkwrap"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "BOOL"
+      },
+      {
+        "name": "item_key_or_id",
+        "opts": [
+          "item_key_or_id"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": -1,
+        "multiple": false,
+        "type": "STRING"
+      }
+    ]
+  },
+  {
+    "path": [
+      "items",
+      "citation"
+    ],
+    "help": "Get citation entries for one or more Zotero items (output is HTML).",
+    "params": [
+      {
+        "name": "style",
+        "opts": [
+          "--style"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "item_key_or_id",
+        "opts": [
+          "item_key_or_id"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": -1,
+        "multiple": false,
+        "type": "STRING"
+      }
+    ]
+  },
+  {
+    "path": [
+      "items",
+      "deleted"
+    ],
+    "help": "List deleted items. Requires the --since parameter.",
+    "params": [
+      {
+        "name": "since",
+        "opts": [
+          "--since"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys', 'bibtex', 'csljson', 'bib'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "collections"
+    ],
+    "help": "Manage Zotero collections.",
+    "params": []
+  },
+  {
+    "path": [
+      "collections",
+      "list"
+    ],
+    "help": "List collections in the Zotero library.",
+    "params": [
+      {
+        "name": "top",
+        "opts": [
+          "--top"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "BOOL"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys', 'bibtex', 'csljson', 'bib'])"
+      },
+      {
+        "name": "start",
+        "opts": [
+          "--start"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "limit",
+        "opts": [
+          "--limit"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "direction",
+        "opts": [
+          "--direction"
+        ],
+        "required": false,
+        "default": "asc",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['asc', 'desc'])"
+      },
+      {
+        "name": "sort",
+        "opts": [
+          "--sort"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['dateAdded', 'dateModified', 'title', 'numItems'])"
+      },
+      {
+        "name": "filter_item_type",
+        "opts": [
+          "--filter-item-type"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_tags",
+        "opts": [
+          "--filter-tag"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": true,
+        "type": "STRING"
+      },
+      {
+        "name": "qmode",
+        "opts": [
+          "--qmode"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['titleCreatorYear', 'everything'])"
+      },
+      {
+        "name": "query",
+        "opts": [
+          "--query",
+          "-q"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "since",
+        "opts": [
+          "--since"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      }
+    ]
+  },
+  {
+    "path": [
+      "collections",
+      "get"
+    ],
+    "help": "Retrieve a specific Zotero collection.",
+    "params": [
+      {
+        "name": "collection_key_or_id",
+        "opts": [
+          "collection_key_or_id"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "since",
+        "opts": [
+          "--since"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_item_type",
+        "opts": [
+          "--filter-item-type"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_tags",
+        "opts": [
+          "--filter-tag"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": true,
+        "type": "STRING"
+      },
+      {
+        "name": "qmode",
+        "opts": [
+          "--qmode"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['titleCreatorYear', 'everything'])"
+      },
+      {
+        "name": "query",
+        "opts": [
+          "--query",
+          "-q"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "direction",
+        "opts": [
+          "--direction"
+        ],
+        "required": false,
+        "default": "asc",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['asc', 'desc'])"
+      },
+      {
+        "name": "sort",
+        "opts": [
+          "--sort"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['dateAdded', 'dateModified', 'title', 'creator', 'type', 'date', 'publisher', 'publicationTitle', 'journalAbbreviation', 'language', 'accessDate', 'libraryCatalog', 'callNumber', 'rights', 'addedBy', 'numItems', 'tags'])"
+      },
+      {
+        "name": "start",
+        "opts": [
+          "--start"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "limit",
+        "opts": [
+          "--limit"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys', 'bibtex', 'csljson', 'bib'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "collections",
+      "subcollections"
+    ],
+    "help": "List subcollections of a specific collection.",
+    "params": [
+      {
+        "name": "parent_collection_key_or_id",
+        "opts": [
+          "parent_collection_key_or_id"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "since",
+        "opts": [
+          "--since"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_item_type",
+        "opts": [
+          "--filter-item-type"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_tags",
+        "opts": [
+          "--filter-tag"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": true,
+        "type": "STRING"
+      },
+      {
+        "name": "qmode",
+        "opts": [
+          "--qmode"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['titleCreatorYear', 'everything'])"
+      },
+      {
+        "name": "query",
+        "opts": [
+          "--query",
+          "-q"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "direction",
+        "opts": [
+          "--direction"
+        ],
+        "required": false,
+        "default": "asc",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['asc', 'desc'])"
+      },
+      {
+        "name": "sort",
+        "opts": [
+          "--sort"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['dateAdded', 'dateModified', 'title', 'creator', 'type', 'date', 'publisher', 'publicationTitle', 'journalAbbreviation', 'language', 'accessDate', 'libraryCatalog', 'callNumber', 'rights', 'addedBy', 'numItems', 'tags'])"
+      },
+      {
+        "name": "start",
+        "opts": [
+          "--start"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "limit",
+        "opts": [
+          "--limit"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys', 'bibtex', 'csljson', 'bib'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "collections",
+      "all"
+    ],
+    "help": "List all collections and subcollections, flattened.",
+    "params": [
+      {
+        "name": "parent_id",
+        "opts": [
+          "--parent-collection-id"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "since",
+        "opts": [
+          "--since"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_item_type",
+        "opts": [
+          "--filter-item-type"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_tags",
+        "opts": [
+          "--filter-tag"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": true,
+        "type": "STRING"
+      },
+      {
+        "name": "qmode",
+        "opts": [
+          "--qmode"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['titleCreatorYear', 'everything'])"
+      },
+      {
+        "name": "query",
+        "opts": [
+          "--query",
+          "-q"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "direction",
+        "opts": [
+          "--direction"
+        ],
+        "required": false,
+        "default": "asc",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['asc', 'desc'])"
+      },
+      {
+        "name": "sort",
+        "opts": [
+          "--sort"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['dateAdded', 'dateModified', 'title', 'creator', 'type', 'date', 'publisher', 'publicationTitle', 'journalAbbreviation', 'language', 'accessDate', 'libraryCatalog', 'callNumber', 'rights', 'addedBy', 'numItems', 'tags'])"
+      },
+      {
+        "name": "start",
+        "opts": [
+          "--start"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "limit",
+        "opts": [
+          "--limit"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys', 'bibtex', 'csljson', 'bib'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "collections",
+      "items"
+    ],
+    "help": "List items in a specific collection.",
+    "params": [
+      {
+        "name": "collection_key_or_id",
+        "opts": [
+          "collection_key_or_id"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "top",
+        "opts": [
+          "--top"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "BOOL"
+      },
+      {
+        "name": "since",
+        "opts": [
+          "--since"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_item_type",
+        "opts": [
+          "--filter-item-type"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_tags",
+        "opts": [
+          "--filter-tag"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": true,
+        "type": "STRING"
+      },
+      {
+        "name": "qmode",
+        "opts": [
+          "--qmode"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['titleCreatorYear', 'everything'])"
+      },
+      {
+        "name": "query",
+        "opts": [
+          "--query",
+          "-q"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "direction",
+        "opts": [
+          "--direction"
+        ],
+        "required": false,
+        "default": "asc",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['asc', 'desc'])"
+      },
+      {
+        "name": "sort",
+        "opts": [
+          "--sort"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['dateAdded', 'dateModified', 'title', 'creator', 'type', 'date', 'publisher', 'publicationTitle', 'journalAbbreviation', 'language', 'accessDate', 'libraryCatalog', 'callNumber', 'rights', 'addedBy', 'numItems', 'tags'])"
+      },
+      {
+        "name": "start",
+        "opts": [
+          "--start"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "limit",
+        "opts": [
+          "--limit"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys', 'bibtex', 'csljson', 'bib'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "collections",
+      "item-count"
+    ],
+    "help": "Get the count of items in a specific collection.",
+    "params": [
+      {
+        "name": "collection_key_or_id",
+        "opts": [
+          "collection_key_or_id"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      }
+    ]
+  },
+  {
+    "path": [
+      "collections",
+      "versions"
+    ],
+    "help": "Get collection version information.",
+    "params": [
+      {
+        "name": "since_version",
+        "opts": [
+          "--since"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "collections",
+      "create"
+    ],
+    "help": "Create one or more new Zotero collections.",
+    "params": [
+      {
+        "name": "collection_names",
+        "opts": [
+          "--name"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": true,
+        "type": "STRING"
+      },
+      {
+        "name": "parent_collection_id",
+        "opts": [
+          "--parent-id"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "since",
+        "opts": [
+          "--since"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_item_type",
+        "opts": [
+          "--filter-item-type"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_tags",
+        "opts": [
+          "--filter-tag"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": true,
+        "type": "STRING"
+      },
+      {
+        "name": "qmode",
+        "opts": [
+          "--qmode"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['titleCreatorYear', 'everything'])"
+      },
+      {
+        "name": "query",
+        "opts": [
+          "--query",
+          "-q"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "direction",
+        "opts": [
+          "--direction"
+        ],
+        "required": false,
+        "default": "asc",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['asc', 'desc'])"
+      },
+      {
+        "name": "sort",
+        "opts": [
+          "--sort"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['dateAdded', 'dateModified', 'title', 'creator', 'type', 'date', 'publisher', 'publicationTitle', 'journalAbbreviation', 'language', 'accessDate', 'libraryCatalog', 'callNumber', 'rights', 'addedBy', 'numItems', 'tags'])"
+      },
+      {
+        "name": "start",
+        "opts": [
+          "--start"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "limit",
+        "opts": [
+          "--limit"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys', 'bibtex', 'csljson', 'bib'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "collections",
+      "update"
+    ],
+    "help": "Update an existing Zotero collection.",
+    "params": [
+      {
+        "name": "collection_key_or_id",
+        "opts": [
+          "collection_key_or_id"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "new_name",
+        "opts": [
+          "--name"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "new_parent_id",
+        "opts": [
+          "--parent-id"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "from_json_input",
+        "opts": [
+          "--from-json"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "last_modified_option",
+        "opts": [
+          "--last-modified"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "since",
+        "opts": [
+          "--since"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_item_type",
+        "opts": [
+          "--filter-item-type"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_tags",
+        "opts": [
+          "--filter-tag"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": true,
+        "type": "STRING"
+      },
+      {
+        "name": "qmode",
+        "opts": [
+          "--qmode"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['titleCreatorYear', 'everything'])"
+      },
+      {
+        "name": "query",
+        "opts": [
+          "--query",
+          "-q"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "direction",
+        "opts": [
+          "--direction"
+        ],
+        "required": false,
+        "default": "asc",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['asc', 'desc'])"
+      },
+      {
+        "name": "sort",
+        "opts": [
+          "--sort"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['dateAdded', 'dateModified', 'title', 'creator', 'type', 'date', 'publisher', 'publicationTitle', 'journalAbbreviation', 'language', 'accessDate', 'libraryCatalog', 'callNumber', 'rights', 'addedBy', 'numItems', 'tags'])"
+      },
+      {
+        "name": "start",
+        "opts": [
+          "--start"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "limit",
+        "opts": [
+          "--limit"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys', 'bibtex', 'csljson', 'bib'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "collections",
+      "delete"
+    ],
+    "help": "Delete one or more Zotero collections.",
+    "params": [
+      {
+        "name": "collection_key_or_id",
+        "opts": [
+          "collection_key_or_id"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": -1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "last_modified_option",
+        "opts": [
+          "--last-modified"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "force",
+        "opts": [
+          "--force"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "BOOL"
+      },
+      {
+        "name": "since",
+        "opts": [
+          "--since"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_item_type",
+        "opts": [
+          "--filter-item-type"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_tags",
+        "opts": [
+          "--filter-tag"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": true,
+        "type": "STRING"
+      },
+      {
+        "name": "qmode",
+        "opts": [
+          "--qmode"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['titleCreatorYear', 'everything'])"
+      },
+      {
+        "name": "query",
+        "opts": [
+          "--query",
+          "-q"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "direction",
+        "opts": [
+          "--direction"
+        ],
+        "required": false,
+        "default": "asc",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['asc', 'desc'])"
+      },
+      {
+        "name": "sort",
+        "opts": [
+          "--sort"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['dateAdded', 'dateModified', 'title', 'creator', 'type', 'date', 'publisher', 'publicationTitle', 'journalAbbreviation', 'language', 'accessDate', 'libraryCatalog', 'callNumber', 'rights', 'addedBy', 'numItems', 'tags'])"
+      },
+      {
+        "name": "start",
+        "opts": [
+          "--start"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "limit",
+        "opts": [
+          "--limit"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys', 'bibtex', 'csljson', 'bib'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "collections",
+      "add-item"
+    ],
+    "help": "Add item(s) to a collection by modifying the item's 'collections' field.",
+    "params": [
+      {
+        "name": "collection_key_or_id",
+        "opts": [
+          "collection_key_or_id"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "item_key_or_id",
+        "opts": [
+          "item_key_or_id"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": -1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "since",
+        "opts": [
+          "--since"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_item_type",
+        "opts": [
+          "--filter-item-type"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_tags",
+        "opts": [
+          "--filter-tag"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": true,
+        "type": "STRING"
+      },
+      {
+        "name": "qmode",
+        "opts": [
+          "--qmode"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['titleCreatorYear', 'everything'])"
+      },
+      {
+        "name": "query",
+        "opts": [
+          "--query",
+          "-q"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "direction",
+        "opts": [
+          "--direction"
+        ],
+        "required": false,
+        "default": "asc",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['asc', 'desc'])"
+      },
+      {
+        "name": "sort",
+        "opts": [
+          "--sort"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['dateAdded', 'dateModified', 'title', 'creator', 'type', 'date', 'publisher', 'publicationTitle', 'journalAbbreviation', 'language', 'accessDate', 'libraryCatalog', 'callNumber', 'rights', 'addedBy', 'numItems', 'tags'])"
+      },
+      {
+        "name": "start",
+        "opts": [
+          "--start"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "limit",
+        "opts": [
+          "--limit"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys', 'bibtex', 'csljson', 'bib'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "collections",
+      "remove-item"
+    ],
+    "help": "Remove item(s) from a collection by modifying the item's 'collections' field.",
+    "params": [
+      {
+        "name": "collection_key_or_id",
+        "opts": [
+          "collection_key_or_id"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "item_key_or_id",
+        "opts": [
+          "item_key_or_id"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": -1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "force",
+        "opts": [
+          "--force"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "BOOL"
+      },
+      {
+        "name": "since",
+        "opts": [
+          "--since"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_item_type",
+        "opts": [
+          "--filter-item-type"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_tags",
+        "opts": [
+          "--filter-tag"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": true,
+        "type": "STRING"
+      },
+      {
+        "name": "qmode",
+        "opts": [
+          "--qmode"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['titleCreatorYear', 'everything'])"
+      },
+      {
+        "name": "query",
+        "opts": [
+          "--query",
+          "-q"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "direction",
+        "opts": [
+          "--direction"
+        ],
+        "required": false,
+        "default": "asc",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['asc', 'desc'])"
+      },
+      {
+        "name": "sort",
+        "opts": [
+          "--sort"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['dateAdded', 'dateModified', 'title', 'creator', 'type', 'date', 'publisher', 'publicationTitle', 'journalAbbreviation', 'language', 'accessDate', 'libraryCatalog', 'callNumber', 'rights', 'addedBy', 'numItems', 'tags'])"
+      },
+      {
+        "name": "start",
+        "opts": [
+          "--start"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "limit",
+        "opts": [
+          "--limit"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys', 'bibtex', 'csljson', 'bib'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "collections",
+      "tags"
+    ],
+    "help": "Get tags for items in a given collection.",
+    "params": [
+      {
+        "name": "collection_key_or_id",
+        "opts": [
+          "collection_key_or_id"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "since",
+        "opts": [
+          "--since"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_item_type",
+        "opts": [
+          "--filter-item-type"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_tags",
+        "opts": [
+          "--filter-tag"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": true,
+        "type": "STRING"
+      },
+      {
+        "name": "qmode",
+        "opts": [
+          "--qmode"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['titleCreatorYear', 'everything'])"
+      },
+      {
+        "name": "query",
+        "opts": [
+          "--query",
+          "-q"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "direction",
+        "opts": [
+          "--direction"
+        ],
+        "required": false,
+        "default": "asc",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['asc', 'desc'])"
+      },
+      {
+        "name": "sort",
+        "opts": [
+          "--sort"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['dateAdded', 'dateModified', 'title', 'creator', 'type', 'date', 'publisher', 'publicationTitle', 'journalAbbreviation', 'language', 'accessDate', 'libraryCatalog', 'callNumber', 'rights', 'addedBy', 'numItems', 'tags'])"
+      },
+      {
+        "name": "start",
+        "opts": [
+          "--start"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "limit",
+        "opts": [
+          "--limit"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys', 'bibtex', 'csljson', 'bib'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "tags"
+    ],
+    "help": "Manage Zotero tags.",
+    "params": []
+  },
+  {
+    "path": [
+      "tags",
+      "list"
+    ],
+    "help": "List all tags in the library.",
+    "params": [
+      {
+        "name": "since",
+        "opts": [
+          "--since"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_item_type",
+        "opts": [
+          "--filter-item-type"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_tags",
+        "opts": [
+          "--filter-tag"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": true,
+        "type": "STRING"
+      },
+      {
+        "name": "qmode",
+        "opts": [
+          "--qmode"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['titleCreatorYear', 'everything'])"
+      },
+      {
+        "name": "query",
+        "opts": [
+          "--query",
+          "-q"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "direction",
+        "opts": [
+          "--direction"
+        ],
+        "required": false,
+        "default": "asc",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['asc', 'desc'])"
+      },
+      {
+        "name": "sort",
+        "opts": [
+          "--sort"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['dateAdded', 'dateModified', 'title', 'creator', 'type', 'date', 'publisher', 'publicationTitle', 'journalAbbreviation', 'language', 'accessDate', 'libraryCatalog', 'callNumber', 'rights', 'addedBy', 'numItems', 'tags'])"
+      },
+      {
+        "name": "start",
+        "opts": [
+          "--start"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "limit",
+        "opts": [
+          "--limit"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys', 'bibtex', 'csljson', 'bib'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "tags",
+      "list-for-item"
+    ],
+    "help": "List tags for a specific item.",
+    "params": [
+      {
+        "name": "since",
+        "opts": [
+          "--since"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_item_type",
+        "opts": [
+          "--filter-item-type"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_tags",
+        "opts": [
+          "--filter-tag"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": true,
+        "type": "STRING"
+      },
+      {
+        "name": "qmode",
+        "opts": [
+          "--qmode"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['titleCreatorYear', 'everything'])"
+      },
+      {
+        "name": "query",
+        "opts": [
+          "--query",
+          "-q"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "direction",
+        "opts": [
+          "--direction"
+        ],
+        "required": false,
+        "default": "asc",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['asc', 'desc'])"
+      },
+      {
+        "name": "sort",
+        "opts": [
+          "--sort"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['dateAdded', 'dateModified', 'title', 'creator', 'type', 'date', 'publisher', 'publicationTitle', 'journalAbbreviation', 'language', 'accessDate', 'libraryCatalog', 'callNumber', 'rights', 'addedBy', 'numItems', 'tags'])"
+      },
+      {
+        "name": "start",
+        "opts": [
+          "--start"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "limit",
+        "opts": [
+          "--limit"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys', 'bibtex', 'csljson', 'bib'])"
+      },
+      {
+        "name": "item_key",
+        "opts": [
+          "item_key"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      }
+    ]
+  },
+  {
+    "path": [
+      "tags",
+      "delete"
+    ],
+    "help": "Delete tag(s) from the library.",
+    "params": [
+      {
+        "name": "tag_names",
+        "opts": [
+          "tag_names"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": -1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "force",
+        "opts": [
+          "--force"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "BOOL"
+      }
+    ]
+  },
+  {
+    "path": [
+      "files"
+    ],
+    "help": "Commands for managing Zotero file attachments.",
+    "params": []
+  },
+  {
+    "path": [
+      "files",
+      "download"
+    ],
+    "help": "Download a file attachment.",
+    "params": [
+      {
+        "name": "item_key_of_attachment",
+        "opts": [
+          "item_key_of_attachment"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output",
+          "-o"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      }
+    ]
+  },
+  {
+    "path": [
+      "files",
+      "upload"
+    ],
+    "help": "Upload file(s) as new attachment(s).",
+    "params": [
+      {
+        "name": "paths_to_local_file",
+        "opts": [
+          "paths_to_local_file"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": -1,
+        "multiple": false,
+        "type": "<click.types.Path object at 0x10b613230>"
+      },
+      {
+        "name": "parent_item_id",
+        "opts": [
+          "--parent-item-id"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filename_option",
+        "opts": [
+          "--filename"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      }
+    ]
+  },
+  {
+    "path": [
+      "files",
+      "upload-batch"
+    ],
+    "help": "Upload files in batch based on a JSON manifest.",
+    "params": [
+      {
+        "name": "json_manifest_path",
+        "opts": [
+          "--json"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "<click.types.Path object at 0x10b6dce10>"
+      }
+    ]
+  },
+  {
+    "path": [
+      "search"
+    ],
+    "help": "Commands for Zotero searches and saved searches.",
+    "params": []
+  },
+  {
+    "path": [
+      "search",
+      "list"
+    ],
+    "help": "List saved searches metadata.",
+    "params": [
+      {
+        "name": "since",
+        "opts": [
+          "--since"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_item_type",
+        "opts": [
+          "--filter-item-type"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_tags",
+        "opts": [
+          "--filter-tag"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": true,
+        "type": "STRING"
+      },
+      {
+        "name": "qmode",
+        "opts": [
+          "--qmode"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['titleCreatorYear', 'everything'])"
+      },
+      {
+        "name": "query",
+        "opts": [
+          "--query",
+          "-q"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "direction",
+        "opts": [
+          "--direction"
+        ],
+        "required": false,
+        "default": "asc",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['asc', 'desc'])"
+      },
+      {
+        "name": "sort",
+        "opts": [
+          "--sort"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['dateAdded', 'dateModified', 'title', 'creator', 'type', 'date', 'publisher', 'publicationTitle', 'journalAbbreviation', 'language', 'accessDate', 'libraryCatalog', 'callNumber', 'rights', 'addedBy', 'numItems', 'tags'])"
+      },
+      {
+        "name": "start",
+        "opts": [
+          "--start"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "limit",
+        "opts": [
+          "--limit"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys', 'bibtex', 'csljson', 'bib'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "search",
+      "create"
+    ],
+    "help": "Create a new saved search.",
+    "params": [
+      {
+        "name": "name",
+        "opts": [
+          "--name"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "conditions_json_str",
+        "opts": [
+          "--conditions-json"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "search",
+      "delete"
+    ],
+    "help": "Delete one or more saved searches by their keys.",
+    "params": [
+      {
+        "name": "search_keys",
+        "opts": [
+          "search_keys"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": -1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "force",
+        "opts": [
+          "--force"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "BOOL"
+      }
+    ]
+  },
+  {
+    "path": [
+      "fulltext"
+    ],
+    "help": "Commands for working with Zotero full-text content.",
+    "params": []
+  },
+  {
+    "path": [
+      "fulltext",
+      "get"
+    ],
+    "help": "Retrieve full-text content for a specific attachment item.",
+    "params": [
+      {
+        "name": "item_key",
+        "opts": [
+          "item_key"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'raw_content'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "fulltext",
+      "list-new"
+    ],
+    "help": "List items with new full-text content since a specific library version.",
+    "params": [
+      {
+        "name": "since",
+        "opts": [
+          "--since"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "fulltext",
+      "set"
+    ],
+    "help": "Set full-text data for an attachment item.\nPayload should be JSON: e.g., '{\"content\": \"...\", \"indexedPages\": 50, \"totalPages\": 50}'\nor for text docs: '{\"content\": \"...\", \"indexedChars\": 1000, \"totalChars\": 1000}'.\n",
+    "params": [
+      {
+        "name": "item_key",
+        "opts": [
+          "item_key"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "payload_json_input",
+        "opts": [
+          "--from-json"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      }
+    ]
+  },
+  {
+    "path": [
+      "groups"
+    ],
+    "help": "Commands for interacting with Zotero groups.",
+    "params": []
+  },
+  {
+    "path": [
+      "groups",
+      "list"
+    ],
+    "help": "List groups the API key has access to.\n\nNote: Not all common options (e.g., query, filter-tag, filter-item-type, since) \nare directly supported by the underlying PyZotero 'groups()' method.\nThey are included for CLI consistency if a future version of PyZotero or a \ndifferent internal method supports them for groups.\nCurrently, 'limit', 'start', 'sort', and 'direction' are the primary passthrough parameters.\n",
+    "params": [
+      {
+        "name": "since",
+        "opts": [
+          "--since"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_item_type",
+        "opts": [
+          "--filter-item-type"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "filter_tags",
+        "opts": [
+          "--filter-tag"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": true,
+        "type": "STRING"
+      },
+      {
+        "name": "qmode",
+        "opts": [
+          "--qmode"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['titleCreatorYear', 'everything'])"
+      },
+      {
+        "name": "query",
+        "opts": [
+          "--query",
+          "-q"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "direction",
+        "opts": [
+          "--direction"
+        ],
+        "required": false,
+        "default": "asc",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['asc', 'desc'])"
+      },
+      {
+        "name": "sort",
+        "opts": [
+          "--sort"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['dateAdded', 'dateModified', 'title', 'creator', 'type', 'date', 'publisher', 'publicationTitle', 'journalAbbreviation', 'language', 'accessDate', 'libraryCatalog', 'callNumber', 'rights', 'addedBy', 'numItems', 'tags'])"
+      },
+      {
+        "name": "start",
+        "opts": [
+          "--start"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "limit",
+        "opts": [
+          "--limit"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "INT"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table', 'keys', 'bibtex', 'csljson', 'bib'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "util"
+    ],
+    "help": "Utility and informational commands.",
+    "params": []
+  },
+  {
+    "path": [
+      "util",
+      "key-info"
+    ],
+    "help": "Display API key permissions.",
+    "params": [
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "util",
+      "last-modified-version"
+    ],
+    "help": "Get the library's last modified version.",
+    "params": []
+  },
+  {
+    "path": [
+      "util",
+      "item-types"
+    ],
+    "help": "List all available item types.",
+    "params": [
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "util",
+      "item-fields"
+    ],
+    "help": "List all available item fields.",
+    "params": [
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "util",
+      "item-type-fields"
+    ],
+    "help": "List fields for a specific item type.",
+    "params": [
+      {
+        "name": "item_type",
+        "opts": [
+          "item_type"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json', 'yaml', 'table'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "util",
+      "item-template"
+    ],
+    "help": "Generate an item template (for item create).",
+    "params": [
+      {
+        "name": "item_type",
+        "opts": [
+          "item_type"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "linkmode",
+        "opts": [
+          "--linkmode"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['imported_file', 'imported_url', 'linked_file', 'linked_url'])"
+      },
+      {
+        "name": "output",
+        "opts": [
+          "--output"
+        ],
+        "required": false,
+        "default": "json",
+        "nargs": 1,
+        "multiple": false,
+        "type": "Choice(['json'])"
+      }
+    ]
+  },
+  {
+    "path": [
+      "configure"
+    ],
+    "help": "Manage zot-cli configuration profiles.",
+    "params": []
+  },
+  {
+    "path": [
+      "configure",
+      "setup"
+    ],
+    "help": "Interactive wizard to set up or modify a profile.",
+    "params": [
+      {
+        "name": "profile_name",
+        "opts": [
+          "--profile"
+        ],
+        "required": false,
+        "default": "default",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      }
+    ]
+  },
+  {
+    "path": [
+      "configure",
+      "set"
+    ],
+    "help": "Set a specific configuration value for a profile.",
+    "params": [
+      {
+        "name": "key",
+        "opts": [
+          "key"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "value",
+        "opts": [
+          "value"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "profile_name",
+        "opts": [
+          "--profile"
+        ],
+        "required": false,
+        "default": "None",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      }
+    ]
+  },
+  {
+    "path": [
+      "configure",
+      "get"
+    ],
+    "help": "Get a specific configuration value from a profile.",
+    "params": [
+      {
+        "name": "key",
+        "opts": [
+          "key"
+        ],
+        "required": true,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      },
+      {
+        "name": "profile_name",
+        "opts": [
+          "--profile"
+        ],
+        "required": false,
+        "default": "None",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      }
+    ]
+  },
+  {
+    "path": [
+      "configure",
+      "list-profiles"
+    ],
+    "help": "List available configuration profiles.",
+    "params": []
+  },
+  {
+    "path": [
+      "configure",
+      "current-profile"
+    ],
+    "help": "Get or set the active default profile.",
+    "params": [
+      {
+        "name": "name",
+        "opts": [
+          "name"
+        ],
+        "required": false,
+        "default": "Sentinel.UNSET",
+        "nargs": 1,
+        "multiple": false,
+        "type": "STRING"
+      }
+    ]
+  }
+]

@@ -1,36 +1,30 @@
-.PHONY: build clean test test-unit test-integration test-all help zotero-cli
+.PHONY: build zotero-go-cli zot zotero-cli test test-unit test-integration test-write-integration check clean
 
-# Go parameters
-GOEXPERIMENT := jsonv2
-BINARY_DIR := bin
+build: zotero-go-cli
 
-help: ## Show this help message
-	@echo 'Usage: make [target]'
-	@echo ''
-	@echo 'Available targets:'
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-18s %s\n", $$1, $$2}'
+zotero-go-cli:
+	go build -trimpath -o bin/zotero-go-cli ./cmd/zotero-go-cli
 
-build: ## Build all binaries
-	GOEXPERIMENT=$(GOEXPERIMENT) go build -o $(BINARY_DIR)/ ./cmd/...
+zot:
+	go build -trimpath -o bin/zot ./cmd/zot
 
-zotero-cli: ## Build zotero-cli binary
-	GOEXPERIMENT=$(GOEXPERIMENT) go build -o $(BINARY_DIR)/zotero-cli ./cmd/zotero-cli
+zotero-cli:
+	go build -trimpath -o bin/zotero-cli ./cmd/zotero-cli
 
-clean: ## Remove build artifacts
-	rm -rf $(BINARY_DIR)
+test test-unit:
+	go test ./...
 
-test: test-unit ## Run unit tests (default, fast)
+check:
+	go vet ./...
+	go test -race ./...
 
-test-unit: ## Run unit tests only (mock tests)
-	go test ./zotero -v
+# Explicitly opt in; credentials are read from the environment.
+test-integration:
+	go test -tags integration ./tests
 
-test-integration: ## Run integration tests (requires credentials)
-	@if [ -f .env ]; then \
-		set -a; . ./.env; set +a; go test ./tests -v; \
-	else \
-		go test ./tests -v; \
-	fi
+# Use only a disposable library: these tests create and delete records.
+test-write-integration:
+	go test -tags integration_write ./tests
 
-test-all: ## Run all tests (unit + integration)
-	@$(MAKE) test-unit
-	@$(MAKE) test-integration
+clean:
+	rm -rf bin
