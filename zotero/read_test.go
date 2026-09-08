@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -624,7 +625,7 @@ func TestDump(t *testing.T) {
 		t.Fatalf("Dump() error = %v", err)
 	}
 
-	expectedPath := tmpDir + "/custom.pdf"
+	expectedPath := filepath.Join(tmpDir, "custom.pdf")
 	if fullPath != expectedPath {
 		t.Errorf("fullPath = %v, want %v", fullPath, expectedPath)
 	}
@@ -675,7 +676,7 @@ func TestDumpWithAutoFilename(t *testing.T) {
 		t.Fatalf("Dump() error = %v", err)
 	}
 
-	expectedPath := tmpDir + "/auto-filename.pdf"
+	expectedPath := filepath.Join(tmpDir, "auto-filename.pdf")
 	if fullPath != expectedPath {
 		t.Errorf("fullPath = %v, want %v", fullPath, expectedPath)
 	}
@@ -726,7 +727,7 @@ func TestDumpWithTitleFallback(t *testing.T) {
 		t.Fatalf("Dump() error = %v", err)
 	}
 
-	expectedPath := tmpDir + "/Fallback Title"
+	expectedPath := filepath.Join(tmpDir, "Fallback Title")
 	if fullPath != expectedPath {
 		t.Errorf("fullPath = %v, want %v", fullPath, expectedPath)
 	}

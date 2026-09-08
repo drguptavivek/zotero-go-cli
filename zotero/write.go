@@ -10,7 +10,9 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/url"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -610,18 +612,18 @@ func (c *Client) DeleteTags(ctx context.Context, version int, tags ...string) er
 // 4. Register the upload
 //
 // parentItemKey: The key of the parent item to attach to (empty string for standalone attachment)
-// filepath: Path to the file to upload
+// filePath: Path to the file to upload
 // filename: Name to use for the attachment (if empty, uses basename of filepath)
 // contentType: MIME type of the file (e.g., "application/pdf")
-func (c *Client) UploadAttachment(ctx context.Context, parentItemKey, filepath, filename, contentType string) (*Item, error) {
+func (c *Client) UploadAttachment(ctx context.Context, parentItemKey, filePath, filename, contentType string) (*Item, error) {
 	// Read file for MD5 and size
-	fileData, err := os.ReadFile(filepath)
+	fileData, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("error reading file: %w", err)
 	}
 
 	if filename == "" {
-		filename = filepath[strings.LastIndex(filepath, "/")+1:]
+		filename = defaultAttachmentFilename(filePath)
 	}
 
 	// Calculate MD5
@@ -668,15 +670,24 @@ func (c *Client) UploadAttachment(ctx context.Context, parentItemKey, filepath, 
 
 	// Step 2: Request upload authorization
 	// Build form-encoded request body (not JSON!)
-	authBody := []byte(fmt.Sprintf("md5=%s&filename=%s&filesize=%d&mtime=%d",
-		md5String, filename, len(fileData), attachment.Data.MTime))
+	authValues := url.Values{}
+	authValues.Set("md5", md5String)
+	authValues.Set("filename", filename)
+	authValues.Set("filesize", strconv.Itoa(len(fileData)))
+	authValues.Set("mtime", strconv.FormatInt(attachment.Data.MTime, 10))
+	// Request individual upload parameters where the server supports them;
+	// this is also understood by Zotero Desktop's v3 local API.
+	authValues.Set("params", "1")
+	authBody := []byte(authValues.Encode())
 
 	path := fmt.Sprintf("/items/%s/file", attachmentKey)
+	registrationMatch := "*"
 	authRespBody, authResp, err := c.doFileAuthRequest(ctx, path, authBody, "*", "")
 
 	// If we get a 412 with "file exists", try again with If-Match header using the file's MD5
 	if err != nil && authResp != nil && authResp.StatusCode == http.StatusPreconditionFailed {
 		c.logger.Printf("File exists on server (412), retrying with If-Match header")
+		registrationMatch = md5String
 		authRespBody, authResp, err = c.doFileAuthRequest(ctx, path, authBody, "", md5String)
 	}
 
@@ -703,43 +714,50 @@ func (c *Client) UploadAttachment(ctx context.Context, parentItemKey, filepath, 
 		return nil, fmt.Errorf("missing upload URL in auth response")
 	}
 
-	uploadParams, ok := authResponse["params"].(map[string]any)
-	if !ok {
-		return nil, fmt.Errorf("missing upload params in auth response")
-	}
-
-	// Create multipart form
-	var uploadBody bytes.Buffer
-	writer := multipart.NewWriter(&uploadBody)
-
-	// Add form fields from params
-	for key, val := range uploadParams {
-		if valStr, ok := val.(string); ok {
-			if err := writer.WriteField(key, valStr); err != nil {
-				return nil, fmt.Errorf("error writing field %s: %w", key, err)
+	var uploadBody io.Reader
+	var uploadContentType string
+	var multipartBody bytes.Buffer
+	if uploadParams, ok := authResponse["params"].(map[string]any); ok && len(uploadParams) > 0 {
+		writer := multipart.NewWriter(&multipartBody)
+		for key, val := range uploadParams {
+			if valStr, ok := val.(string); ok {
+				if err := writer.WriteField(key, valStr); err != nil {
+					return nil, fmt.Errorf("error writing field %s: %w", key, err)
+				}
 			}
 		}
+		part, err := writer.CreateFormFile("file", filename)
+		if err != nil {
+			return nil, fmt.Errorf("error creating form file: %w", err)
+		}
+		if _, err := part.Write(fileData); err != nil {
+			return nil, fmt.Errorf("error writing file data: %w", err)
+		}
+		if err := writer.Close(); err != nil {
+			return nil, fmt.Errorf("error closing multipart writer: %w", err)
+		}
+		uploadBody = &multipartBody
+		uploadContentType = writer.FormDataContentType()
+	} else {
+		prefix, _ := authResponse["prefix"].(string)
+		suffix, _ := authResponse["suffix"].(string)
+		contentType, _ := authResponse["contentType"].(string)
+		if contentType == "" {
+			contentType = attachment.Data.ContentType
+		}
+		uploadBody = bytes.NewReader(append(append([]byte(prefix), fileData...), []byte(suffix)...))
+		uploadContentType = contentType
 	}
 
-	// Add the file
-	part, err := writer.CreateFormFile("file", filename)
-	if err != nil {
-		return nil, fmt.Errorf("error creating form file: %w", err)
-	}
-	if _, err := part.Write(fileData); err != nil {
-		return nil, fmt.Errorf("error writing file data: %w", err)
-	}
-
-	if err := writer.Close(); err != nil {
-		return nil, fmt.Errorf("error closing multipart writer: %w", err)
-	}
-
-	// Upload to S3/storage
-	uploadReq, err := http.NewRequestWithContext(ctx, http.MethodPost, uploadURL, &uploadBody)
+	// Upload to S3/storage or the Zotero Desktop local endpoint. This request
+	// is authorized by the upload URL/key and must not carry the API key.
+	uploadReq, err := http.NewRequestWithContext(ctx, http.MethodPost, uploadURL, uploadBody)
 	if err != nil {
 		return nil, fmt.Errorf("error creating upload request: %w", err)
 	}
-	uploadReq.Header.Set("Content-Type", writer.FormDataContentType())
+	if uploadContentType != "" {
+		uploadReq.Header.Set("Content-Type", uploadContentType)
+	}
 
 	uploadResp, err := c.httpClient.Do(uploadReq)
 	if err != nil {
@@ -754,184 +772,83 @@ func (c *Client) UploadAttachment(ctx context.Context, parentItemKey, filepath, 
 
 	// Step 4: Register the upload
 	registerPath := fmt.Sprintf("/items/%s/file", attachmentKey)
-	registerBody := []byte(fmt.Sprintf(`{"upload": "%s"}`, authResponse["uploadKey"]))
-
-	if lastModified := authResp.Header.Get("Last-Modified-Version"); lastModified != "" {
-		if version, err := strconv.Atoi(lastModified); err == nil {
-			_, registerResp, err := c.doWriteRequest(ctx, http.MethodPost, registerPath, registerBody, version)
-			if err != nil {
-				return nil, fmt.Errorf("error registering upload: %w", err)
-			}
-			if registerResp.StatusCode != http.StatusNoContent {
-				return nil, fmt.Errorf("unexpected status code from register: %d", registerResp.StatusCode)
-			}
-		}
+	uploadToken, ok := authResponse["upload"].(string)
+	if !ok || uploadToken == "" {
+		// Older Zotero-compatible servers used uploadKey; accept it only as a
+		// compatibility fallback while preferring the v3 `upload` field.
+		uploadToken, _ = authResponse["uploadKey"].(string)
+	}
+	if uploadToken == "" {
+		return nil, fmt.Errorf("missing upload token in authorization response")
+	}
+	registerValues := url.Values{}
+	registerValues.Set("upload", uploadToken)
+	registerHeaders := make(http.Header)
+	registerHeaders.Set("Content-Type", "application/x-www-form-urlencoded")
+	if registrationMatch == "*" {
+		registerHeaders.Set("If-None-Match", "*")
+	} else {
+		registerHeaders.Set("If-Match", registrationMatch)
+	}
+	_, registerResp, err := c.doUploadRegistration(ctx, registerPath, []byte(registerValues.Encode()), registerHeaders)
+	if err != nil {
+		return nil, fmt.Errorf("error registering upload: %w", err)
+	}
+	if registerResp.StatusCode != http.StatusNoContent && registerResp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code from register: %d", registerResp.StatusCode)
 	}
 
 	// Fetch and return the final attachment item
 	return c.Item(ctx, attachmentKey, nil)
 }
 
+// defaultAttachmentFilename returns the final path component for both native
+// paths and Windows paths. Normalizing the separator first keeps behavior
+// deterministic when a path from another platform is passed to the CLI.
+func defaultAttachmentFilename(filePath string) string {
+	normalized := strings.ReplaceAll(filePath, `\`, "/")
+	return filepath.Base(filepath.Clean(filepath.FromSlash(normalized)))
+}
+
+func (c *Client) doUploadRegistration(ctx context.Context, path string, body []byte, headers http.Header) ([]byte, *http.Response, error) {
+	if err := c.checkMutationAllowed(); err != nil {
+		return nil, nil, err
+	}
+	result, err := c.request(ctx, http.MethodPost, path, nil, body, headers, false)
+	resp := &http.Response{StatusCode: result.statusCode, Header: result.headers}
+	return result.body, resp, err
+}
+
 // doFileAuthRequest performs an HTTP request to authorize file upload with If-Match/If-None-Match headers
 func (c *Client) doFileAuthRequest(ctx context.Context, path string, body []byte, ifNoneMatch, ifMatch string) ([]byte, *http.Response, error) {
-	// Apply rate limiting
-	if c.rateLimiter != nil {
-		c.logger.Printf("Waiting for rate limiter...")
-		if err := c.rateLimiter.Wait(ctx); err != nil {
-			c.logger.Printf("Rate limiter error: %v", err)
-			return nil, nil, fmt.Errorf("rate limiter error: %w", err)
-		}
+	if err := c.checkMutationAllowed(); err != nil {
+		return nil, nil, err
 	}
-
-	// Build URL
-	urlStr := fmt.Sprintf("%s/%s/%s%s",
-		c.BaseURL,
-		c.LibraryType,
-		c.LibraryID,
-		path,
-	)
-
-	c.logger.Printf("Making file auth request: POST %s", urlStr)
-
-	// Create request
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, urlStr, bytes.NewReader(body))
-	if err != nil {
-		c.logger.Printf("Error creating request: %v", err)
-		return nil, nil, fmt.Errorf("error creating request: %w", err)
-	}
-
-	// Set headers
-	if c.APIKey != "" {
-		req.Header.Set("Zotero-API-Key", c.APIKey)
-		c.logger.Printf("API Key set")
-	}
-	req.Header.Set("Zotero-API-Version", "3")
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	// Set If-Match or If-None-Match headers (required for file upload authorization)
+	headers := make(http.Header)
+	headers.Set("Content-Type", "application/x-www-form-urlencoded")
 	if ifNoneMatch != "" {
-		req.Header.Set("If-None-Match", ifNoneMatch)
-		c.logger.Printf("If-None-Match: %s", ifNoneMatch)
+		headers.Set("If-None-Match", ifNoneMatch)
 	} else if ifMatch != "" {
-		req.Header.Set("If-Match", ifMatch)
-		c.logger.Printf("If-Match: %s", ifMatch)
+		headers.Set("If-Match", ifMatch)
 	}
-
-	// Execute request
-	c.logger.Printf("Executing file auth request...")
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		c.logger.Printf("Error executing request: %v", err)
-		return nil, nil, fmt.Errorf("error executing request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	c.logger.Printf("Response status: %d %s", resp.StatusCode, resp.Status)
-
-	// Read response body
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		c.logger.Printf("Error reading response body: %v", err)
-		return nil, resp, fmt.Errorf("error reading response body: %w", err)
-	}
-
-	c.logger.Printf("Response body length: %d bytes", len(respBody))
-	if len(respBody) > 0 {
-		c.logger.Printf("Response body: %s", string(respBody))
-	}
-
-	// Check for errors
-	if resp.StatusCode >= 400 {
-		c.logger.Printf("API error: %s (status %d)", string(respBody), resp.StatusCode)
-		return respBody, resp, fmt.Errorf("API error: %s (status %d)", string(respBody), resp.StatusCode)
-	}
-
-	c.logger.Printf("File auth request successful")
-	return respBody, resp, nil
+	result, err := c.request(ctx, http.MethodPost, path, nil, body, headers, false)
+	resp := &http.Response{StatusCode: result.statusCode, Header: result.headers}
+	return result.body, resp, err
 }
 
 // doWriteRequest performs an HTTP write request (POST, PATCH, DELETE) with rate limiting
 func (c *Client) doWriteRequest(ctx context.Context, method, path string, body []byte, version int) ([]byte, *http.Response, error) {
-	// Apply rate limiting
-	if c.rateLimiter != nil {
-		c.logger.Printf("Waiting for rate limiter...")
-		if err := c.rateLimiter.Wait(ctx); err != nil {
-			c.logger.Printf("Rate limiter error: %v", err)
-			return nil, nil, fmt.Errorf("rate limiter error: %w", err)
-		}
+	if err := c.checkMutationAllowed(); err != nil {
+		return nil, nil, err
 	}
-
-	// Build URL
-	urlStr := fmt.Sprintf("%s/%s/%s%s",
-		c.BaseURL,
-		c.LibraryType,
-		c.LibraryID,
-		path,
-	)
-
-	c.logger.Printf("Making write request: %s %s", method, urlStr)
-
-	// Create request
-	var reqBody io.Reader
+	headers := make(http.Header)
 	if body != nil {
-		reqBody = bytes.NewReader(body)
-		c.logger.Printf("Request body: %s", string(body))
+		headers.Set("Content-Type", "application/json")
 	}
-
-	req, err := http.NewRequestWithContext(ctx, method, urlStr, reqBody)
-	if err != nil {
-		c.logger.Printf("Error creating request: %v", err)
-		return nil, nil, fmt.Errorf("error creating request: %w", err)
-	}
-
-	// Set headers
-	if c.APIKey != "" {
-		req.Header.Set("Zotero-API-Key", c.APIKey)
-		c.logger.Printf("API Key set")
-	} else {
-		c.logger.Printf("No API Key set")
-	}
-	req.Header.Set("Zotero-API-Version", "3")
-
-	if body != nil {
-		req.Header.Set("Content-Type", "application/json")
-	}
-
-	// Set version header for concurrency control
 	if version > 0 {
-		req.Header.Set("If-Unmodified-Since-Version", strconv.Itoa(version))
-		c.logger.Printf("If-Unmodified-Since-Version: %d", version)
+		headers.Set("If-Unmodified-Since-Version", strconv.Itoa(version))
 	}
-
-	// Execute request
-	c.logger.Printf("Executing write request...")
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		c.logger.Printf("Error executing request: %v", err)
-		return nil, nil, fmt.Errorf("error executing request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	c.logger.Printf("Response status: %d %s", resp.StatusCode, resp.Status)
-
-	// Read response body
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		c.logger.Printf("Error reading response body: %v", err)
-		return nil, resp, fmt.Errorf("error reading response body: %w", err)
-	}
-
-	c.logger.Printf("Response body length: %d bytes", len(respBody))
-	if len(respBody) > 0 {
-		c.logger.Printf("Response body: %s", string(respBody))
-	}
-
-	// Check for errors
-	if resp.StatusCode >= 400 {
-		c.logger.Printf("API error: %s (status %d)", string(respBody), resp.StatusCode)
-		return respBody, resp, fmt.Errorf("API error: %s (status %d)", string(respBody), resp.StatusCode)
-	}
-
-	c.logger.Printf("Write request successful")
-	return respBody, resp, nil
+	result, err := c.request(ctx, method, path, nil, body, headers, false)
+	resp := &http.Response{StatusCode: result.statusCode, Header: result.headers}
+	return result.body, resp, err
 }

@@ -6,8 +6,14 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
+	"path/filepath"
+	"runtime"
 	"strconv"
+	"strings"
+
+	"github.com/Epistemic-Technology/zotero/internal/atomicfile"
 )
 
 // QueryParams represents optional parameters for API requests
@@ -291,36 +297,10 @@ func (c *Client) Groups(ctx context.Context, params *QueryParams) ([]Group, erro
 		return nil, fmt.Errorf("groups() requires user library type")
 	}
 
-	// Groups endpoint doesn't use library type/ID prefix
-	urlStr := fmt.Sprintf("%s/users/%s/groups%s",
-		c.BaseURL,
-		c.LibraryID,
-		c.buildQueryString(params),
-	)
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, urlStr, nil)
+	path := fmt.Sprintf("/users/%s/groups", url.PathEscape(c.LibraryID))
+	body, _, err := c.doRequest(ctx, http.MethodGet, path, params)
 	if err != nil {
-		return nil, fmt.Errorf("error creating request: %w", err)
-	}
-
-	if c.APIKey != "" {
-		req.Header.Set("Zotero-API-Key", c.APIKey)
-	}
-	req.Header.Set("Zotero-API-Version", "3")
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("error executing request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("error reading response body: %w", err)
-	}
-
-	if resp.StatusCode >= 400 {
-		return nil, fmt.Errorf("API error: %s (status %d)", string(body), resp.StatusCode)
+		return nil, err
 	}
 
 	var groups []Group
@@ -395,16 +375,147 @@ func (c *Client) Deleted(ctx context.Context, since int) (*DeletedContent, error
 	return &deleted, nil
 }
 
-// File downloads the raw file content of an attachment item
-// Returns the file content as a byte slice
+// Download streams an attachment to destination using an atomic replacement.
+// Zotero Desktop may redirect to a file:// URL; that redirect is accepted only
+// when BaseURL is a loopback local API. API keys are never sent to file URLs or
+// to a different HTTP host.
+func (c *Client) Download(ctx context.Context, itemKey, destination string) error {
+	if strings.TrimSpace(itemKey) == "" {
+		return fmt.Errorf("item key is required")
+	}
+	if destination == "" {
+		return fmt.Errorf("destination is required")
+	}
+	dir := filepath.Dir(destination)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return fmt.Errorf("create destination directory: %w", err)
+	}
+	tmp, err := os.CreateTemp(dir, ".zotero-download-*")
+	if err != nil {
+		return fmt.Errorf("create temporary destination: %w", err)
+	}
+	tmpName := tmp.Name()
+	defer os.Remove(tmpName)
+	if info, statErr := os.Stat(destination); statErr == nil {
+		_ = tmp.Chmod(info.Mode().Perm())
+	}
+	resp, localFile, err := c.downloadResponse(ctx, itemKey)
+	if err != nil {
+		tmp.Close()
+		return err
+	}
+	if localFile != "" {
+		respFile, openErr := os.Open(localFile)
+		if openErr != nil {
+			tmp.Close()
+			return fmt.Errorf("open local attachment: %w", openErr)
+		}
+		_, err = io.Copy(tmp, respFile)
+		respFile.Close()
+	} else {
+		_, err = io.Copy(tmp, resp.Body)
+		resp.Body.Close()
+	}
+	if err != nil {
+		tmp.Close()
+		return fmt.Errorf("write attachment: %w", err)
+	}
+	if err := tmp.Close(); err != nil {
+		return fmt.Errorf("close temporary destination: %w", err)
+	}
+	if err := atomicfile.Replace(tmpName, destination); err != nil {
+		return fmt.Errorf("replace destination: %w", err)
+	}
+	return nil
+}
+
+func (c *Client) downloadResponse(ctx context.Context, itemKey string) (*http.Response, string, error) {
+	current, err := c.resolveURL(fmt.Sprintf("/items/%s/file", url.PathEscape(itemKey)), nil)
+	if err != nil {
+		return nil, "", err
+	}
+	baseURL, _ := url.Parse(current)
+	baseHost := strings.ToLower(baseURL.Host)
+	baseScheme := strings.ToLower(baseURL.Scheme)
+	baseLocal := c.isLoopbackBase()
+	carryKey := true
+	for redirects := 0; redirects < 10; redirects++ {
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, current, nil)
+		if err != nil {
+			return nil, "", fmt.Errorf("create download request: %w", err)
+		}
+		req.Header.Set("Zotero-API-Version", "3")
+		if carryKey && c.APIKey != "" {
+			req.Header.Set("Zotero-API-Key", c.APIKey)
+		}
+		client := *c.httpClient
+		client.CheckRedirect = func(_ *http.Request, _ []*http.Request) error { return http.ErrUseLastResponse }
+		resp, err := client.Do(req)
+		if err != nil {
+			return nil, "", fmt.Errorf("download request: %w", err)
+		}
+		if resp.StatusCode >= 300 && resp.StatusCode < 400 {
+			location := resp.Header.Get("Location")
+			resp.Body.Close()
+			if location == "" {
+				return nil, "", fmt.Errorf("download redirect missing Location header")
+			}
+			next, err := url.Parse(location)
+			if err != nil {
+				return nil, "", fmt.Errorf("invalid download redirect: %w", err)
+			}
+			prior, _ := url.Parse(current)
+			next = prior.ResolveReference(next)
+			if next.Scheme == "file" {
+				if !baseLocal {
+					return nil, "", fmt.Errorf("refusing file redirect from non-local Zotero API")
+				}
+				if next.Host != "" && !strings.EqualFold(next.Host, "localhost") {
+					return nil, "", fmt.Errorf("refusing file redirect to host %q", next.Host)
+				}
+				localPath := next.Path
+				if runtime.GOOS == "windows" && strings.HasPrefix(localPath, "/") && len(localPath) > 2 && localPath[2] == ':' {
+					localPath = strings.TrimPrefix(localPath, "/")
+				}
+				return nil, filepath.FromSlash(localPath), nil
+			}
+			if next.Scheme != "http" && next.Scheme != "https" {
+				return nil, "", fmt.Errorf("unsupported download redirect scheme %q", next.Scheme)
+			}
+			carryKey = strings.EqualFold(next.Host, baseHost) && !(baseScheme == "https" && strings.ToLower(next.Scheme) != "https")
+			current = next.String()
+			continue
+		}
+		if resp.StatusCode >= 400 {
+			body, _ := io.ReadAll(resp.Body)
+			resp.Body.Close()
+			return nil, "", &APIError{StatusCode: resp.StatusCode, Headers: resp.Header.Clone(), Body: body, apiKey: c.APIKey}
+		}
+		return resp, "", nil
+	}
+	return nil, "", fmt.Errorf("too many download redirects")
+}
+
+func (c *Client) isLoopbackBase() bool {
+	u, err := url.Parse(c.BaseURL)
+	if err != nil {
+		return false
+	}
+	host := strings.ToLower(u.Hostname())
+	return host == "localhost" || host == "127.0.0.1" || host == "::1"
+}
+
+// File downloads the raw file content of an attachment item.
 func (c *Client) File(ctx context.Context, itemKey string) ([]byte, error) {
-	path := fmt.Sprintf("/items/%s/file", itemKey)
-	body, _, err := c.doRequest(ctx, http.MethodGet, path, nil)
+	resp, localFile, err := c.downloadResponse(ctx, itemKey)
 	if err != nil {
 		return nil, err
 	}
-
-	return body, nil
+	if localFile != "" {
+		return os.ReadFile(localFile)
+	}
+	defer resp.Body.Close()
+	return io.ReadAll(resp.Body)
 }
 
 // Dump is a convenience wrapper around File() that writes an attachment to disk
@@ -431,31 +542,18 @@ func (c *Client) Dump(ctx context.Context, itemKey string, filename string, path
 		}
 	}
 
-	// Download the file content
-	fileContent, err := c.File(ctx, itemKey)
-	if err != nil {
-		return "", fmt.Errorf("error downloading file: %w", err)
+	filename = filepath.Base(filename)
+	if filename == "." || filename == string(filepath.Separator) || filename == "" {
+		return "", fmt.Errorf("filename is empty")
 	}
-
-	// Build the full file path
 	var fullPath string
 	if path != "" {
-		fullPath = fmt.Sprintf("%s/%s", path, filename)
+		fullPath = filepath.Join(path, filename)
 	} else {
 		fullPath = filename
 	}
-
-	// Write the file to disk
-	file, err := os.Create(fullPath)
-	if err != nil {
-		return "", fmt.Errorf("error creating file: %w", err)
+	if err := c.Download(ctx, itemKey, fullPath); err != nil {
+		return "", fmt.Errorf("error downloading file: %w", err)
 	}
-	defer file.Close()
-
-	_, err = file.Write(fileContent)
-	if err != nil {
-		return "", fmt.Errorf("error writing file: %w", err)
-	}
-
 	return fullPath, nil
 }

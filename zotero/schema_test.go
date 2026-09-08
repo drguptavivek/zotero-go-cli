@@ -8,7 +8,7 @@ import (
 
 func TestItemTypes(t *testing.T) {
 	server, client := setupMockServer(t, func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/users/12345/itemTypes" {
+		if r.URL.Path != "/itemTypes" {
 			t.Errorf("unexpected path: %s", r.URL.Path)
 		}
 
@@ -53,7 +53,7 @@ func TestItemTypesWithLocale(t *testing.T) {
 
 func TestItemFields(t *testing.T) {
 	server, client := setupMockServer(t, func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/users/12345/itemFields" {
+		if r.URL.Path != "/itemFields" {
 			t.Errorf("unexpected path: %s", r.URL.Path)
 		}
 
@@ -80,7 +80,7 @@ func TestItemFields(t *testing.T) {
 
 func TestItemTypeFields(t *testing.T) {
 	server, client := setupMockServer(t, func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/users/12345/itemTypeFields" {
+		if r.URL.Path != "/itemTypeFields" {
 			t.Errorf("unexpected path: %s", r.URL.Path)
 		}
 		query := r.URL.Query()
@@ -127,7 +127,7 @@ func TestItemTypeFieldsWithConstant(t *testing.T) {
 
 func TestItemTypeCreatorTypes(t *testing.T) {
 	server, client := setupMockServer(t, func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/users/12345/itemTypeCreatorTypes" {
+		if r.URL.Path != "/itemTypeCreatorTypes" {
 			t.Errorf("unexpected path: %s", r.URL.Path)
 		}
 		query := r.URL.Query()
@@ -158,7 +158,7 @@ func TestItemTypeCreatorTypes(t *testing.T) {
 
 func TestCreatorFields(t *testing.T) {
 	server, client := setupMockServer(t, func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/users/12345/creatorFields" {
+		if r.URL.Path != "/creatorFields" {
 			t.Errorf("unexpected path: %s", r.URL.Path)
 		}
 
@@ -182,7 +182,7 @@ func TestCreatorFields(t *testing.T) {
 
 func TestNewItemTemplate(t *testing.T) {
 	server, client := setupMockServer(t, func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/users/12345/items/new" {
+		if r.URL.Path != "/items/new" {
 			t.Errorf("unexpected path: %s", r.URL.Path)
 		}
 		query := r.URL.Query()
