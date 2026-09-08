@@ -28,7 +28,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const Version = "0.1.0-rc.1"
+const Version = "0.1.0-rc.2"
 
 type app struct {
 	settings                                config.Settings

@@ -55,7 +55,7 @@ func (c *Client) request(ctx context.Context, method string, params any, notific
 		}
 	}
 	if c.Protocol == "2026-07-28" {
-		copied["_meta"] = map[string]any{"io.modelcontextprotocol/protocolVersion": c.Protocol, "io.modelcontextprotocol/clientInfo": map[string]string{"name": "zotero-go-cli", "version": "0.1.0-rc.1"}, "io.modelcontextprotocol/clientCapabilities": map[string]any{}}
+		copied["_meta"] = map[string]any{"io.modelcontextprotocol/protocolVersion": c.Protocol, "io.modelcontextprotocol/clientInfo": map[string]string{"name": "zotero-go-cli", "version": "0.1.0-rc.2"}, "io.modelcontextprotocol/clientCapabilities": map[string]any{}}
 	}
 	payload := map[string]any{"jsonrpc": "2.0", "method": method, "params": copied}
 	c.nextID++
@@ -200,7 +200,7 @@ func (c *Client) Initialize(ctx context.Context) error {
 		c.initialized = true
 		return nil
 	}
-	result, err := c.request(ctx, "initialize", map[string]any{"protocolVersion": c.Protocol, "capabilities": map[string]any{}, "clientInfo": map[string]string{"name": "zot-go", "version": "0.1.0-rc.1"}}, false)
+	result, err := c.request(ctx, "initialize", map[string]any{"protocolVersion": c.Protocol, "capabilities": map[string]any{}, "clientInfo": map[string]string{"name": "zot-go", "version": "0.1.0-rc.2"}}, false)
 	if err != nil {
 		return err
 	}
