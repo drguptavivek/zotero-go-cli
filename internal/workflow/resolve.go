@@ -12,6 +12,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/Epistemic-Technology/zotero/internal/atomicfile"
 	"github.com/Epistemic-Technology/zotero/zotero"
 	"github.com/spf13/cobra"
 )
@@ -684,7 +685,7 @@ func emitTo(stdout io.Writer, path string, value any) error {
 		cleanup()
 		return err
 	}
-	if err := os.Rename(tmp, path); err != nil {
+	if err := atomicfile.Replace(tmp, path); err != nil {
 		cleanup()
 		return err
 	}

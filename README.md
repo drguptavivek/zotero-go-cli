@@ -31,6 +31,12 @@ the executable.
 The release workflow does not currently code-sign or notarize binaries. macOS
 Gatekeeper and Windows SmartScreen may therefore warn on direct downloads; see
 the release notes for the verification status before distributing broadly.
+Release candidates use the same unsigned artifacts and are intended for
+controlled testing. Verify `SHA256SUMS` and, where available, the GitHub
+build-provenance attestation before extraction. For broad macOS distribution,
+the executable needs an Apple Developer ID signature and notarization; Windows
+distribution should use Authenticode signing. Neither checksum verification nor
+an attestation changes the operating system's trust warning by itself.
 
 Local access requires Zotero Desktop with its local API enabled. Cloud access uses Zotero API credentials and library configuration. Local library operations are read-only. Cloud write commands modify records only when explicitly invoked.
 

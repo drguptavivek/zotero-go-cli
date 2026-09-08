@@ -29,28 +29,63 @@ jobs:
             archive: tar.gz
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           path: source
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: drguptavivek/zotero-use
           # Pin the exact skill distributed with this CLI release.
           ref: fe55ef75550492b4e6770bacf24575e003255871
           path: bundle/zotero-use
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
         with:
           go-version-file: source/go.mod
       - name: Validate pinned skill
         shell: bash
         run: |
           set -euo pipefail
-          python3 -I -S -m unittest discover -s bundle/zotero-use/tests -v
-          python3 -I -S bundle/zotero-use/scripts/check_package.py
+          export PYTHONDONTWRITEBYTECODE=1
+          skill_root="$GITHUB_WORKSPACE/bundle/zotero-use"
+          required_files=(
+            SKILL.md
+            VERSION
+            scripts/check_updates.py
+            scripts/selftest.py
+            scripts/validate_zotero_docx.py
+            scripts/zotseek_mcp.py
+            tests/test_check_updates.py
+            tests/test_validate_zotero_docx.py
+          )
+          for relative_path in "${required_files[@]}"; do
+            if [[ ! -f "$skill_root/$relative_path" ]]; then
+              echo "::error::Pinned zotero-use revision is missing $relative_path" >&2
+              exit 1
+            fi
+          done
+          if [[ -e "$skill_root/scripts/check_package.py" ]]; then
+            echo "Pinned revision provides scripts/check_package.py; validating it"
+            python3 -I -S "$skill_root/scripts/check_package.py"
+          else
+            echo "Pinned revision has no scripts/check_package.py; validating the files present in this revision"
+          fi
+          python3 -I -S - "$skill_root" <<'PY'
+          import pathlib
+          import sys
+
+          root = pathlib.Path(sys.argv[1])
+          for path in sorted((root / "scripts").glob("*.py")):
+              compile(path.read_text(encoding="utf-8"), str(path), "exec", dont_inherit=True)
+          PY
+          python3 -I -S -m unittest discover -s "$skill_root/tests" -p 'test*.py' -v
+          python3 -I -S "$skill_root/scripts/selftest.py" --help >/dev/null
+          python3 -I -S "$skill_root/scripts/validate_zotero_docx.py" --help >/dev/null
+          python3 -I -S "$skill_root/scripts/zotseek_mcp.py" --help >/dev/null
       - name: Build and package
         shell: bash
         run: |
           set -euo pipefail
+          source_commit="$(git -C source rev-parse HEAD)"
           if [[ "$GITHUB_REF" == refs/tags/* ]] && \
              [ "${GITHUB_REF_NAME#v}" != "$(tr -d '[:space:]' < source/VERSION)" ]; then
             echo "Tag $GITHUB_REF_NAME does not match VERSION $(cat source/VERSION)" >&2
@@ -71,7 +106,7 @@ jobs:
           cp source/README.md source/VERSION bundle/
           jq -n \
             --arg cliVersion "$(tr -d '[:space:]' < source/VERSION)" \
-            --arg cliCommit "$GITHUB_SHA" \
+            --arg cliCommit "$source_commit" \
             --arg skillVersion "$(tr -d '[:space:]' < bundle/zotero-use/VERSION)" \
             --arg skillCommit "$(cat bundle/zotero-use/ZOTERO_USE_COMMIT)" \
             --arg goos "${{ matrix.goos }}" \
@@ -81,19 +116,66 @@ jobs:
               skillVersion: $skillVersion, skillCommit: $skillCommit,
               goos: $goos, goarch: $goarch, binary: $binary}' \
             > bundle/BUNDLE-MANIFEST.json
+          manifest=bundle/BUNDLE-MANIFEST.json
+          binary_path="zotero-use/bin/zotero-go-cli$suffix"
+          jq -e \
+            --arg cliVersion "$(tr -d '[:space:]' < source/VERSION)" \
+            --arg cliCommit "$source_commit" \
+            --arg skillVersion "$(tr -d '[:space:]' < bundle/zotero-use/VERSION)" \
+            --arg skillCommit "$(cat bundle/zotero-use/ZOTERO_USE_COMMIT)" \
+            --arg goos "${{ matrix.goos }}" \
+            --arg goarch "${{ matrix.goarch }}" \
+            --arg binary "$binary_path" \
+            '(.cliVersion == $cliVersion) and
+             (.cliCommit == $cliCommit) and
+             (.skillVersion == $skillVersion) and
+             (.skillCommit == $skillCommit) and
+             (.goos == $goos) and
+             (.goarch == $goarch) and
+             (.binary == $binary) and
+             (.cliCommit | test("^[0-9a-f]{40}$")) and
+             (.skillCommit | test("^[0-9a-f]{40}$"))' "$manifest" >/dev/null
           test "$(find bundle/zotero-use/bin -maxdepth 1 -type f -name 'zotero-go-cli*' | wc -l | tr -d ' ')" = 1
-          test -f "bundle/zotero-use/bin/zotero-go-cli$suffix"
+          test -f "bundle/$binary_path"
           test -f bundle/zotero-use/SKILL.md
+          test -f bundle/LICENSE-zotero-go-cli
+          test -f bundle/README.md
+          test -f bundle/VERSION
+          test ! -e bundle/zotero-use/.git
+          find bundle -type d -name __pycache__ -prune -exec rm -rf -- {} +
+          archive="$GITHUB_WORKSPACE/$target"
+          staging="$(mktemp -d)"
+          trap 'rm -rf "$staging"' EXIT
+          (cd bundle && find . -type f -print | sed 's#^\./##' | LC_ALL=C sort > "$staging/files")
+          # Normalize all filesystem timestamps before either archive format is created.
+          SOURCE_DATE_EPOCH="$(git -C source show -s --format=%ct HEAD)"
+          export SOURCE_DATE_EPOCH
+          find bundle -exec touch -h -d "@$SOURCE_DATE_EPOCH" {} +
           if [ "${{ matrix.archive }}" = zip ]; then
-            (cd bundle && zip -9 -r "$GITHUB_WORKSPACE/$target.zip" .)
+            archive="$archive.zip"
+            (cd bundle && zip -X -9 "$archive" -@ < "$staging/files")
+            unzip -tq "$archive"
+            unzip -Z1 "$archive" | LC_ALL=C sort > "$staging/archive-files"
           else
-            tar -C bundle -czf "$target.tar.gz" .
+            archive="$archive.tar.gz"
+            tar_path="$staging/$target.tar"
+            tar -C bundle \
+              --sort=name \
+              --mtime="@$SOURCE_DATE_EPOCH" \
+              --owner=0 --group=0 --numeric-owner \
+              --format=pax \
+              --pax-option=delete=atime,delete=ctime \
+              -cf "$tar_path" -T "$staging/files"
+            gzip -n -9 "$tar_path"
+            mv "$tar_path.gz" "$archive"
+            tar -tzf "$archive" | LC_ALL=C sort > "$staging/archive-files"
           fi
-      - uses: actions/upload-artifact@v4
+          cmp -s "$staging/files" "$staging/archive-files"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: zotero-go-cli-${{ matrix.goos }}-${{ matrix.goarch }}
           path: zotero-go-cli-${{ matrix.goos }}-${{ matrix.goarch }}.*
-      - uses: actions/attest-build-provenance@v3
+      - uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3
         with:
           subject-path: zotero-go-cli-${{ matrix.goos }}-${{ matrix.goarch }}.*
 
@@ -104,7 +186,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
           pattern: zotero-go-cli-*
           merge-multiple: true

@@ -701,3 +701,22 @@ func TestWriteResponseParsing(t *testing.T) {
 		t.Error("expected failed item with key '3'")
 	}
 }
+
+func TestDefaultAttachmentFilenameHandlesWindowsPaths(t *testing.T) {
+	tests := []struct {
+		name string
+		path string
+		want string
+	}{
+		{name: "unix", path: "/tmp/papers/report.pdf", want: "report.pdf"},
+		{name: "windows", path: `C:\Users\Vivek\papers\report.pdf`, want: "report.pdf"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := defaultAttachmentFilename(tt.path); got != tt.want {
+				t.Fatalf("defaultAttachmentFilename(%q) = %q, want %q", tt.path, got, tt.want)
+			}
+		})
+	}
+}

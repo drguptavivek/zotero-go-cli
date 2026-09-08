@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -611,18 +612,18 @@ func (c *Client) DeleteTags(ctx context.Context, version int, tags ...string) er
 // 4. Register the upload
 //
 // parentItemKey: The key of the parent item to attach to (empty string for standalone attachment)
-// filepath: Path to the file to upload
+// filePath: Path to the file to upload
 // filename: Name to use for the attachment (if empty, uses basename of filepath)
 // contentType: MIME type of the file (e.g., "application/pdf")
-func (c *Client) UploadAttachment(ctx context.Context, parentItemKey, filepath, filename, contentType string) (*Item, error) {
+func (c *Client) UploadAttachment(ctx context.Context, parentItemKey, filePath, filename, contentType string) (*Item, error) {
 	// Read file for MD5 and size
-	fileData, err := os.ReadFile(filepath)
+	fileData, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("error reading file: %w", err)
 	}
 
 	if filename == "" {
-		filename = filepath[strings.LastIndex(filepath, "/")+1:]
+		filename = defaultAttachmentFilename(filePath)
 	}
 
 	// Calculate MD5
@@ -799,6 +800,14 @@ func (c *Client) UploadAttachment(ctx context.Context, parentItemKey, filepath, 
 
 	// Fetch and return the final attachment item
 	return c.Item(ctx, attachmentKey, nil)
+}
+
+// defaultAttachmentFilename returns the final path component for both native
+// paths and Windows paths. Normalizing the separator first keeps behavior
+// deterministic when a path from another platform is passed to the CLI.
+func defaultAttachmentFilename(filePath string) string {
+	normalized := strings.ReplaceAll(filePath, `\`, "/")
+	return filepath.Base(filepath.Clean(filepath.FromSlash(normalized)))
 }
 
 func (c *Client) doUploadRegistration(ctx context.Context, path string, body []byte, headers http.Header) ([]byte, *http.Response, error) {

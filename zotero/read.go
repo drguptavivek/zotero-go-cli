@@ -12,6 +12,8 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+
+	"github.com/Epistemic-Technology/zotero/internal/atomicfile"
 )
 
 // QueryParams represents optional parameters for API requests
@@ -421,7 +423,7 @@ func (c *Client) Download(ctx context.Context, itemKey, destination string) erro
 	if err := tmp.Close(); err != nil {
 		return fmt.Errorf("close temporary destination: %w", err)
 	}
-	if err := os.Rename(tmpName, destination); err != nil {
+	if err := atomicfile.Replace(tmpName, destination); err != nil {
 		return fmt.Errorf("replace destination: %w", err)
 	}
 	return nil
